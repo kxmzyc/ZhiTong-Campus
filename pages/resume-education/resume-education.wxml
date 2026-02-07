@@ -1,0 +1,186 @@
+<view class="edu-page">
+  <view class="header">
+    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">用户</view>
+    <view class="nav-container">
+      <view class="nav-links">
+        <view class="nav-link" bindtap="goToHome">小助手</view>
+        <view class="nav-link" bindtap="goToCampus">校招</view>
+        <view class="nav-link active" bindtap="goToResume">简历</view>
+      </view>
+    </view>
+    <view class="header-right"></view>
+  </view>
+
+  <scroll-view class="edu-body" scroll-y="true">
+    <view class="edu-panel">
+      <view class="tips">
+        <view class="tip-card">
+          <view class="tip-text">填写HR较为关注基础信息，让HR能够更快的了解你，填写邮箱用于接收企业方的相关通知。</view>
+        </view>
+        <view class="tip-card">
+          <view class="tip-text">对于应届毕业生来说，以下是如何填写教育经历的建议：\n1. 学校名称：列出你就读的大学或学院的全名。\n2. 学位：说明你获得的学位（如学士、硕士）和专业。\n3. 毕业日期：提供你的预计毕业日期或实际毕业日期。\n4. GPA：如果你的GPA较高，可以将其包括在内，尤其是如果它反映了你的学术成就。\n5. 相关课程：列出与职位相关的主要课程，尤其是那些直接与工作要求相关的课程。</view>
+        </view>
+      </view>
+
+      <view class="form">
+        <view class="form-head">
+          <view class="form-title">教育信息</view>
+          <view class="form-trash ui-pressable" hover-class="ui-press-icon" bindtap="onClearAll">
+            <image class="icon-delete" src="/images/impl/删除.svg" mode="aspectFit" />
+          </view>
+        </view>
+
+        <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="openSchoolSheet">
+          <view class="row-label">学校</view>
+          <view class="row-right">
+            <text class="row-value {{schoolName ? '' : 'row-value--placeholder'}}">{{schoolName || '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+        <view wx:if="{{errors.schoolName}}" class="field-error">{{errors.schoolName}}</view>
+        <view class="divider"></view>
+
+        <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="openDegreeSheet">
+          <view class="row-label">学历</view>
+          <view class="row-right">
+            <text class="row-value {{degreeName ? '' : 'row-value--placeholder'}}">{{degreeName || '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+        <view wx:if="{{errors.degreeName}}" class="field-error">{{errors.degreeName}}</view>
+        <view class="divider"></view>
+
+        <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="openMajorSheet">
+          <view class="row-label">专业类别</view>
+          <view class="row-right">
+            <text class="row-value {{majorCategoryName ? '' : 'row-value--placeholder'}}">{{majorCategoryName || '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+        <view wx:if="{{errors.majorCategoryName}}" class="field-error">{{errors.majorCategoryName}}</view>
+        <view class="divider"></view>
+
+        <view class="row">
+          <view class="row-label">专业名称</view>
+          <view class="row-right">
+            <input class="row-input" placeholder="请输入" value="{{majorName}}" bindinput="onMajorNameInput" bindblur="onMajorNameBlur" maxlength="50" />
+          </view>
+        </view>
+        <view wx:if="{{errors.majorName}}" class="field-error">{{errors.majorName}}</view>
+        <view class="divider"></view>
+
+        <view class="row">
+          <view class="row-label">在读时间</view>
+          <view class="row-right">
+            <view class="edu-dates">
+              <view class="edu-date ui-pressable" hover-class="ui-press-soft" bindtap="openStartGradSheet">
+                <text class="row-value {{startYear ? '' : 'row-value--placeholder'}}">{{startYear ? (startYear + '-' + startMonth) : '入学时间'}}</text>
+              </view>
+              <text class="edu-date-mid">~</text>
+              <view class="edu-date ui-pressable" hover-class="ui-press-soft" bindtap="openEndGradSheet">
+                <text class="row-value {{endYear ? '' : 'row-value--placeholder'}}">{{endYear ? (endYear + '-' + endMonth) : '毕业时间'}}</text>
+              </view>
+            </view>
+            <image class="row-calendar" src="/images/impl/日历.svg" mode="aspectFit" />
+          </view>
+        </view>
+        <view wx:if="{{errors.startDate}}" class="field-error">{{errors.startDate}}</view>
+        <view wx:if="{{errors.endDate}}" class="field-error">{{errors.endDate}}</view>
+        <view wx:if="{{errors.dateRange}}" class="field-error">{{errors.dateRange}}</view>
+        <view class="divider"></view>
+
+        <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="openStudyModeSheet">
+          <view class="row-label">学习方式</view>
+          <view class="row-right">
+            <text class="row-value {{studyModeName ? '' : 'row-value--placeholder'}}">{{studyModeName || '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+        <view wx:if="{{errors.studyModeName}}" class="field-error">{{errors.studyModeName}}</view>
+        <view class="divider"></view>
+
+        <view class="desc">
+          <view class="desc-label">专业描述</view>
+          <view class="desc-box">
+            <textarea class="desc-input" placeholder="可以对所读专业进行简单解释说明，并列出所学课程，以及个人的专业排名。也可以阐述你对这个专业的见解，或者学习经历对自己的影响。" value="{{description}}" bindinput="onDescriptionInput" bindblur="onDescriptionBlur" maxlength="1500" auto-height />
+            <view class="desc-count">{{descCount}}/1500</view>
+          </view>
+        </view>
+        <view wx:if="{{errors.description}}" class="field-error">{{errors.description}}</view>
+
+        <view class="form-footer">
+          <view class="optimize-btn ui-pressable" hover-class="ui-press" bindtap="onOptimize">
+            <text class="optimize-text">帮我优化</text>
+          </view>
+          <view class="points-badge ui-pressable" hover-class="ui-press-soft" bindtap="onGoPoints">
+            <image class="icon-points" src="/images/impl/积分.svg" mode="aspectFit" />
+            <text class="points-badge-text">{{pointsBalance}}积分</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+
+  <view class="footer" catchtap="noop">
+    <view class="footer-inner">
+      <view class="btn btn-secondary ui-pressable" hover-class="ui-press-soft" catchtap="onBack">返回</view>
+      <view class="btn btn-primary ui-pressable" hover-class="ui-press" catchtap="onSave">保存</view>
+    </view>
+  </view>
+
+  <view wx:if="{{sheetVisible}}" class="sheet-mask" bindtap="onSheetMaskTap">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-header" wx:if="{{sheetType !== 'school' && sheetType !== 'major'}}">
+        <text class="sheet-cancel" bindtap="onSheetCancel">返回</text>
+        <text class="sheet-title">{{sheetTitle}}</text>
+        <text class="sheet-confirm" bindtap="onSheetConfirm">确认</text>
+      </view>
+
+      <view class="sheet-header sheet-header--plain" wx:elif="{{sheetType === 'school' || sheetType === 'major'}}">
+        <text class="sheet-cancel sheet-cancel--ghost">返回</text>
+        <text class="sheet-title">{{sheetTitle}}</text>
+        <text class="sheet-confirm sheet-confirm--ghost">确认</text>
+      </view>
+
+      <view wx:if="{{sheetType === 'degree' || sheetType === 'studyMode'}}" class="sheet-body">
+        <picker-view class="picker" indicator-style="height: 48px;" value="{{pickerValue}}" bindchange="onPickerChange">
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{pickerOptions}}" wx:key="*this">{{item}}</view>
+          </picker-view-column>
+        </picker-view>
+      </view>
+
+      <view wx:if="{{sheetType === 'startGrad' || sheetType === 'endGrad'}}" class="sheet-body">
+        <picker-view class="picker" indicator-style="height: 48px;" value="{{pickerValue}}" bindchange="onGradPickerChange">
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{gradYears}}" wx:key="*this">{{item}}年</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{gradMonths}}" wx:key="*this">{{item}}月</view>
+          </picker-view-column>
+        </picker-view>
+      </view>
+
+      <view wx:if="{{sheetType === 'school'}}" class="sheet-list">
+        <scroll-view class="sheet-scroll" scroll-y="true">
+          <view class="sheet-list-item" wx:for="{{schools}}" wx:key="*this" bindtap="onSchoolPick" data-name="{{item}}">{{item}}</view>
+        </scroll-view>
+      </view>
+
+      <view wx:if="{{sheetType === 'major'}}" class="sheet-major">
+        <view class="major-body">
+          <scroll-view class="major-left" scroll-y="true">
+            <view wx:for="{{majorCategories}}" wx:key="key" class="major-left-item {{activeMajorCategoryKey === item.key ? 'active' : ''}}" bindtap="onMajorCategoryTap" data-key="{{item.key}}">{{item.name}}</view>
+          </scroll-view>
+          <scroll-view class="major-right" scroll-y="true">
+            <view class="major-grid">
+              <view wx:for="{{displayMajors}}" wx:key="name" wx:for-item="it" class="major-chip" bindtap="onMajorPick" data-name="{{it.name}}">{{it.name}}</view>
+            </view>
+          </scroll-view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

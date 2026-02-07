@@ -1,0 +1,233 @@
+<view class="page">
+  <view class="nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-inner">
+      <view class="nav-back" bindtap="onBack">
+        <text class="nav-back-icon">‹</text>
+        <text class="nav-back-text">返回</text>
+      </view>
+      <view class="nav-title">基本信息</view>
+      <view class="nav-right"></view>
+    </view>
+  </view>
+
+  <view class="content">
+    <scroll-view class="scroll" scroll-y="true">
+      <view class="card">
+        <view class="section-title">基本信息</view>
+
+        <view class="row row--avatar">
+          <view class="row-label">头像</view>
+          <view class="row-right" bindtap="onChooseAvatar">
+            <view class="avatar">
+              <image wx:if="{{form.avatarPath}}" class="avatar-img" src="{{form.avatarPath}}" mode="aspectFill" />
+              <view wx:else class="avatar-placeholder"> </view>
+            </view>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row">
+          <view class="row-label">姓名</view>
+          <view class="row-right">
+            <input class="row-input" placeholder="请输入姓名" value="{{form.name}}" maxlength="20" bindinput="onNameInput" />
+          </view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row" bindtap="openGenderSheet">
+          <view class="row-label">性别</view>
+          <view class="row-right">
+            <text class="row-value {{form.gender ? '' : 'row-value--placeholder'}}">{{form.gender || '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row" bindtap="openDegreeSheet">
+          <view class="row-label">最高学历</view>
+          <view class="row-right">
+            <text class="row-value {{form.degree ? '' : 'row-value--placeholder'}}">{{form.degree || '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row" bindtap="openSchoolSheet">
+          <view class="row-label">毕业院校</view>
+          <view class="row-right">
+            <text class="row-value {{form.school ? '' : 'row-value--placeholder'}}">{{form.school || '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row" bindtap="openMajorSheet">
+          <view class="row-label">专业院系</view>
+          <view class="row-right">
+            <text class="row-value {{form.major ? '' : 'row-value--placeholder'}}">{{form.major || '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row" bindtap="openGradSheet">
+          <view class="row-label">毕业时间</view>
+          <view class="row-right">
+            <text class="row-value {{form.gradYear ? '' : 'row-value--placeholder'}}">{{form.gradYear ? (form.gradYear + '-' + form.gradMonth) : '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row">
+          <view class="row-label">常用邮箱</view>
+          <view class="row-right">
+            <input class="row-input" placeholder="请输入邮箱" value="{{form.email}}" maxlength="60" bindinput="onEmailInput" />
+          </view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row" bindtap="openIntendedPositionSheet">
+          <view class="row-label">意向职位</view>
+          <view class="row-right">
+            <text class="row-value {{form.intendedPositions.length ? '' : 'row-value--placeholder'}}">{{form.intendedPositions.length ? form.intendedPositions.join('、') : '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+
+        <view wx:if="{{form.intendedPositions.length}}" class="row-chips">
+          <view wx:for="{{form.intendedPositions}}" wx:key="*this" class="row-chip">{{item}}</view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row" bindtap="openIntendedIndustrySheet">
+          <view class="row-label">意向行业</view>
+          <view class="row-right">
+            <text class="row-value {{form.intendedIndustries.length ? '' : 'row-value--placeholder'}}">{{form.intendedIndustries.length ? form.intendedIndustries.join('、') : '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+
+        <view wx:if="{{form.intendedIndustries.length}}" class="row-chips">
+          <view wx:for="{{form.intendedIndustries}}" wx:key="*this" class="row-chip">{{item}}</view>
+        </view>
+
+        <view class="divider"></view>
+
+        <view class="row" bindtap="openIntendedCitySheet">
+          <view class="row-label">意向城市</view>
+          <view class="row-right">
+            <text class="row-value {{form.intendedCities.length ? '' : 'row-value--placeholder'}}">{{form.intendedCities.length ? form.intendedCities.join('、') : '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+
+        <view wx:if="{{form.intendedCities.length}}" class="row-chips">
+          <view wx:for="{{form.intendedCities}}" wx:key="*this" class="row-chip">{{item}}</view>
+        </view>
+      </view>
+
+      <view class="safe-space"></view>
+    </scroll-view>
+
+    <view class="bottom">
+      <button class="save-btn" type="primary" hover-class="none" bindtap="onSave">保存</button>
+    </view>
+  </view>
+
+  <view wx:if="{{sheetVisible}}" class="sheet-mask" bindtap="onSheetMaskTap">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-header" wx:if="{{sheetType !== 'school' && sheetType !== 'major'}}">
+        <text class="sheet-cancel" bindtap="onSheetCancel">返回</text>
+        <text class="sheet-title">{{sheetTitle}}</text>
+        <text class="sheet-confirm" bindtap="onSheetConfirm">确认</text>
+      </view>
+
+      <view class="sheet-header sheet-header--plain" wx:elif="{{sheetType === 'school' || sheetType === 'major'}}">
+        <text class="sheet-cancel sheet-cancel--ghost">返回</text>
+        <text class="sheet-title">{{sheetTitle}}</text>
+        <text class="sheet-confirm sheet-confirm--ghost">确认</text>
+      </view>
+
+      <view wx:if="{{sheetType === 'gender' || sheetType === 'degree'}}" class="sheet-body">
+        <picker-view class="picker" indicator-style="height: 48px;" value="{{pickerValue}}" bindchange="onPickerChange">
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{pickerOptions}}" wx:key="*this">{{item}}</view>
+          </picker-view-column>
+        </picker-view>
+      </view>
+
+      <view wx:if="{{sheetType === 'grad'}}" class="sheet-body">
+        <picker-view class="picker" indicator-style="height: 48px;" value="{{pickerValue}}" bindchange="onGradPickerChange">
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{gradYears}}" wx:key="*this">{{item}}年</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{gradMonths}}" wx:key="*this">{{item}}月</view>
+          </picker-view-column>
+        </picker-view>
+      </view>
+
+      <view wx:if="{{sheetType === 'school'}}" class="sheet-list">
+        <scroll-view class="sheet-scroll" scroll-y="true">
+          <view class="sheet-list-item" wx:for="{{schools}}" wx:key="*this" bindtap="onSchoolPick" data-name="{{item}}">{{item}}</view>
+        </scroll-view>
+      </view>
+
+      <view wx:if="{{sheetType === 'major'}}" class="sheet-major">
+        <view class="major-body">
+          <scroll-view class="major-left" scroll-y="true">
+            <view wx:for="{{majorCategories}}" wx:key="key" class="major-left-item {{activeMajorCategoryKey === item.key ? 'active' : ''}}" bindtap="onMajorCategoryTap" data-key="{{item.key}}">{{item.name}}</view>
+          </scroll-view>
+          <scroll-view class="major-right" scroll-y="true">
+            <view class="major-grid">
+              <view wx:for="{{displayMajors}}" wx:key="name" wx:for-item="it" class="major-chip" bindtap="onMajorPick" data-name="{{it.name}}">{{it.name}}</view>
+            </view>
+          </scroll-view>
+        </view>
+      </view>
+
+      <view wx:if="{{sheetType === 'intendedPosition' || sheetType === 'intendedIndustry' || sheetType === 'intendedCity'}}" class="sheet-select">
+        <view class="select-search">
+          <view class="search-box">
+            <view class="search-icon"></view>
+            <input class="search-input" placeholder="{{selectPlaceholder || '请输入'}}" value="{{selectQuery}}" bindinput="onSelectQueryInput" />
+          </view>
+        </view>
+
+        <view class="select-cart" wx:if="{{selectSelectedItems.length}}">
+          <scroll-view class="select-cart-scroll" scroll-x="true" show-scrollbar="false">
+            <view class="select-cart-list">
+              <view class="select-cart-item" wx:for="{{selectSelectedItems}}" wx:key="*this">
+                <text class="select-cart-text">{{item}}</text>
+                <text class="select-cart-remove" bindtap="onSelectRemove" data-name="{{item}}">×</text>
+              </view>
+            </view>
+          </scroll-view>
+          <text class="select-cart-count">{{selectSelectedItems.length}}/3</text>
+        </view>
+
+        <view class="select-body">
+          <scroll-view wx:if="{{!selectIsSearching}}" class="select-left" scroll-y="true">
+            <view wx:for="{{selectTabs}}" wx:key="key" class="select-left-item {{selectActiveKey === item.key ? 'active' : ''}}" bindtap="onSelectTabTap" data-key="{{item.key}}">{{item.name}}</view>
+          </scroll-view>
+          <scroll-view class="select-right" scroll-y="true">
+            <view class="select-grid">
+              <view wx:for="{{selectDisplayItems}}" wx:key="name" wx:for-item="it" class="select-chip {{selectSelectedMap[it.name] ? 'selected' : ''}}" bindtap="onSelectToggle" data-name="{{it.name}}">{{it.name}}</view>
+            </view>
+          </scroll-view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

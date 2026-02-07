@@ -1,0 +1,52 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/points/points",
+    "pages/points-recharge/points-recharge",
+    "pages/ai-select-delivery/ai-select-delivery",
+    "pages/campus/campus",
+    "pages/city-select/city-select",
+    "pages/industry-select/industry-select",
+    "pages/position-select/position-select",
+    "pages/profile-applied/profile-applied",
+    "pages/profile-pending/profile-pending",
+    "pages/profile-favorite/profile-favorite",
+    "pages/resume/resume",
+    "pages/resume-make/resume-make",
+    "pages/resume-section/resume-section",
+    "pages/resume-education/resume-education",
+    "pages/resume-internship/resume-internship",
+    "pages/resume-campus/resume-campus",
+    "pages/resume-project/resume-project",
+    "pages/resume-awards/resume-awards",
+    "pages/resume-skills/resume-skills",
+    "pages/resume-summary/resume-summary",
+    "pages/resume-option-select/resume-option-select",
+    "pages/history/history",
+    "pages/profile-edit/profile-edit",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#8b5cf6",
+    "navigationBarTitleText": "职通校园",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f0e6ff",
+    "enablePullDownRefresh": true,
+    "navigationStyle": "custom"
+  },
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  },
+  "debug": true,
+  "navigateToMiniProgramAppIdList": [],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于推荐附近的工作机会"
+    }
+  },
+  "requiredBackgroundModes": ["audio"],
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

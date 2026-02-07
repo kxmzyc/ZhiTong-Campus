@@ -1,0 +1,73 @@
+<view class="skills-page">
+  <view class="header">
+    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">用户</view>
+    <view class="nav-container">
+      <view class="nav-links">
+        <view class="nav-link" bindtap="goToHome">小助手</view>
+        <view class="nav-link" bindtap="goToCampus">校招</view>
+        <view class="nav-link active" bindtap="goToResume">简历</view>
+      </view>
+    </view>
+    <view class="header-right"></view>
+  </view>
+
+  <scroll-view class="skills-body" scroll-y="true">
+    <view class="skills-panel">
+      <view class="tips">
+        <view class="tip-card">
+          <view class="tip-text">填写HR较为关注基础信息，让HR能够更快的了解你，填写邮箱用于接收企业方的相关通知。</view>
+        </view>
+      </view>
+
+      <view class="form">
+        <view class="form-head">
+          <view class="form-title">技能</view>
+        </view>
+
+        <view class="block">
+          <view class="block-label">语言能力</view>
+          <view class="block-box">
+            <textarea class="block-input" placeholder="写法示例： 英语四级 英语六级 英语专业八级\n英语口语 - 熟练 英语写作 - 熟练 雅思 - 6.0分\n托福 - 90分" value="{{langSkill}}" bindinput="onLangInput" bindblur="onLangBlur" maxlength="1500" auto-height />
+          </view>
+        </view>
+        <view wx:if="{{errors.langSkill}}" class="field-error">{{errors.langSkill}}</view>
+        <view class="divider"></view>
+
+        <view class="block">
+          <view class="block-label">编程/软件</view>
+          <view class="block-box">
+            <textarea class="block-input" placeholder="写法示例： Python - 熟练 Java - 入门 C++ - 掌握\n熟悉 TCP/IP 协议 Microsoft Office - 掌握\nPhotoshop - 入门 Axure - 掌握" value="{{techSkill}}" bindinput="onTechInput" bindblur="onTechBlur" maxlength="1500" auto-height />
+          </view>
+        </view>
+        <view wx:if="{{errors.techSkill}}" class="field-error">{{errors.techSkill}}</view>
+        <view class="divider"></view>
+
+        <view class="block">
+          <view class="block-label">性格特质</view>
+          <view class="block-box">
+            <textarea class="block-input" placeholder="写法示例： 领导力 团队合作 沟通能力 问题解决能力\n时间管理 适应能力 尽责性" value="{{traitSkill}}" bindinput="onTraitInput" bindblur="onTraitBlur" maxlength="1500" auto-height />
+          </view>
+        </view>
+        <view wx:if="{{errors.traitSkill}}" class="field-error">{{errors.traitSkill}}</view>
+        <view class="divider"></view>
+
+        <view class="block">
+          <view class="block-label">兴趣爱好</view>
+          <view class="block-box">
+            <textarea class="block-input" placeholder="写法示例： 体育与户外活动 艺术创造 智力游戏\n语言学习" value="{{hobbySkill}}" bindinput="onHobbyInput" bindblur="onHobbyBlur" maxlength="1500" auto-height />
+          </view>
+        </view>
+        <view wx:if="{{errors.hobbySkill}}" class="field-error">{{errors.hobbySkill}}</view>
+      </view>
+
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+
+  <view class="footer" catchtap="noop">
+    <view class="footer-inner">
+      <view class="btn btn-secondary ui-pressable" hover-class="ui-press-soft" catchtap="onBack">返回</view>
+      <view class="btn btn-primary ui-pressable" hover-class="ui-press" catchtap="onSave">保存</view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,56 @@
+<view class="city-page">
+  <view class="city-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="city-nav-inner">
+      <view class="city-nav-back" bindtap="onBack">
+        <text class="city-nav-back-icon">‹</text>
+      </view>
+      <view class="city-nav-title">行业</view>
+      <view class="city-nav-right"></view>
+    </view>
+  </view>
+
+  <view class="city-panel">
+    <view class="city-top">
+      <view class="city-search">
+        <view class="search-box">
+          <view class="search-icon"></view>
+          <input class="search-input" placeholder="请输入行业" value="{{query}}" bindinput="onQueryInput" />
+        </view>
+      </view>
+
+      <view wx:if="{{selectedItems.length}}" class="city-cart">
+        <scroll-view class="city-cart-scroll" scroll-x="true" show-scrollbar="false">
+          <view class="city-cart-list">
+            <view wx:for="{{selectedItems}}" wx:key="*this" class="city-cart-item">
+              <text class="city-cart-text">{{item}}</text>
+              <text class="city-cart-remove" bindtap="onRemoveSelected" data-name="{{item}}">×</text>
+            </view>
+          </view>
+        </scroll-view>
+        <text class="city-cart-count">{{selectedItems.length}}/3</text>
+      </view>
+    </view>
+
+    <view class="city-body">
+      <scroll-view wx:if="{{!isSearching}}" class="city-left" scroll-y="true">
+        <view wx:for="{{categoryTabs}}" wx:key="key" class="city-left-item {{activeCategoryKey === item.key ? 'active' : ''}}" bindtap="onCategoryTap" data-key="{{item.key}}">
+          <text class="city-left-text">{{item.name}}</text>
+        </view>
+      </scroll-view>
+
+      <view class="city-right-wrap">
+        <scroll-view class="city-right" scroll-y="true">
+          <view class="city-grid">
+            <view wx:for="{{displayItems}}" wx:key="name" wx:for-item="it" class="city-chip {{selectedMap[it.name] ? 'selected' : ''}}" bindtap="onItemToggle" data-name="{{it.name}}">
+              {{it.name}}
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+
+    <view class="city-bottom">
+      <button class="city-confirm-btn" type="primary" hover-class="none" bindtap="onConfirm">确定</button>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,203 @@
+.page {
+  height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.nav {
+  background: var(--surface-2);
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-inner {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.nav-back-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.nav-back-text {
+  font-size: 14px;
+}
+
+.nav-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.nav-right {
+  width: 44px;
+}
+
+.content {
+  flex: 1;
+  height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-fixed {
+  padding: 16px;
+  padding-bottom: 12px;
+}
+
+.card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  padding: 14px;
+}
+
+.points-card {
+  padding: 18px 16px;
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.22), rgba(91, 90, 247, 0.18), rgba(181, 92, 255, 0.16));
+  border: 1px solid var(--glass-border-2);
+}
+
+.points-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.recharge-action {
+  background: var(--gradient-primary);
+  box-shadow: var(--glow-primary);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.recharge-action:active {
+  transform: scale(0.99);
+}
+
+.points-card-title {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.points-card-value {
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+}
+
+
+.records-wrap {
+  flex: 1;
+  height: 0;
+  padding: 0 16px 16px;
+  box-sizing: border-box;
+}
+
+.records-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.records-scroll {
+  flex: 1;
+  height: 0;
+}
+
+.section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.empty {
+  padding: 18px 0;
+  text-align: center;
+  color: var(--muted);
+}
+
+.empty-title {
+  font-size: 13px;
+}
+
+.record-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.record-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 10px;
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  background: var(--glass-2);
+}
+
+.record-item:active {
+  transform: scale(0.99);
+}
+
+.record-title {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.record-time {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.record-right {
+  text-align: right;
+}
+
+.record-change {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.record-change.plus {
+  color: var(--success);
+}
+
+.record-change.minus {
+  color: var(--danger);
+}
+
+.record-balance {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+

@@ -1,0 +1,137 @@
+page {
+  --bg: radial-gradient(900px 520px at 16% -10%, rgba(91, 90, 247, 0.18), rgba(91, 90, 247, 0) 60%),
+    radial-gradient(860px 480px at 102% 0%, rgba(34, 211, 238, 0.14), rgba(34, 211, 238, 0) 55%),
+    linear-gradient(180deg, #fbfbff 0%, #f6f7ff 40%, #f7fbff 100%);
+  --surface: rgba(255, 255, 255, 0.96);
+  --surface-2: rgba(255, 255, 255, 0.86);
+  --surface-3: rgba(255, 255, 255, 0.74);
+
+  --glass: rgba(255, 255, 255, 0.74);
+  --glass-2: rgba(255, 255, 255, 0.62);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-border-2: rgba(91, 90, 247, 0.18);
+
+  --text: #0f172a;
+  --muted: rgba(71, 85, 105, 0.92);
+  --subtle: rgba(100, 116, 139, 0.82);
+  --border: rgba(15, 23, 42, 0.10);
+
+  --fill: rgba(15, 23, 42, 0.04);
+  --fill-2: rgba(15, 23, 42, 0.06);
+
+  --primary: #5b5af7;
+  --primary-2: #b55cff;
+  --primary-soft: rgba(91, 90, 247, 0.12);
+  --primary-soft-2: rgba(181, 92, 255, 0.12);
+  --primary-border: rgba(91, 90, 247, 0.28);
+
+  --accent-cyan: #22d3ee;
+  --accent-pink: #fb7185;
+  --accent-lime: #a3e635;
+
+  --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-2));
+  --gradient-cyan: linear-gradient(135deg, var(--accent-cyan), var(--primary));
+  --gradient-pink: linear-gradient(135deg, var(--accent-pink), var(--primary-2));
+
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --overlay: rgba(15, 23, 42, 0.50);
+
+  --shadow-xs: 0 1px 6px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 4px 14px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 14px 40px rgba(15, 23, 42, 0.14);
+
+  --glow-primary: 0 14px 44px rgba(91, 90, 247, 0.22);
+  --glow-cyan: 0 14px 44px rgba(34, 211, 238, 0.20);
+
+  --radius-sm: 12px;
+  --radius: 16px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  color: var(--text);
+  font-size: 16px;
+  background: var(--bg);
+  animation: appPageEnter 260ms var(--ease-out) both;
+}
+
+@keyframes appPageEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.ui-glass {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius);
+}
+
+.ui-glass-strong {
+  background: var(--glass-2);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+}
+
+.ui-btn-gradient {
+  background: var(--gradient-primary);
+  color: #fff;
+  box-shadow: var(--glow-primary);
+}
+
+.ui-pressable {
+  transition: transform 140ms var(--ease-out), box-shadow 180ms var(--ease-out), filter 180ms var(--ease-out), background 180ms var(--ease-out);
+  will-change: transform;
+}
+
+.ui-press {
+  transform: scale(0.99);
+  box-shadow: var(--shadow-md);
+  filter: brightness(0.985);
+}
+
+.ui-press-soft {
+  transform: scale(0.99);
+  filter: brightness(0.988);
+}
+
+.ui-press-icon {
+  transform: scale(0.97);
+  background: rgba(91, 90, 247, 0.12);
+  filter: brightness(0.995);
+}
+
+.ui-press-fab {
+  transform: scale(0.96);
+  box-shadow: var(--shadow-xs);
+  filter: brightness(0.985);
+}
+
+text,
+view,
+input,
+textarea,
+button {
+  font-family: inherit;
+}
+
+button {
+  font-size: 16px;
+}
+
+button::after {
+  border: none;
+}

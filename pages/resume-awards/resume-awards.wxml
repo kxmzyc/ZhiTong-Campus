@@ -1,0 +1,94 @@
+<view class="awards-page">
+  <view class="header">
+    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">用户</view>
+    <view class="nav-container">
+      <view class="nav-links">
+        <view class="nav-link" bindtap="goToHome">小助手</view>
+        <view class="nav-link" bindtap="goToCampus">校招</view>
+        <view class="nav-link active" bindtap="goToResume">简历</view>
+      </view>
+    </view>
+    <view class="header-right"></view>
+  </view>
+
+  <scroll-view class="awards-body" scroll-y="true">
+    <view class="awards-panel">
+      <view class="tips">
+        <view class="tip-card">
+          <view class="tip-text">填写HR较为关注基础信息，让HR能够更快的了解你，填写邮箱用于接收企业方的相关通知。</view>
+        </view>
+      </view>
+
+      <view class="form">
+        <view class="form-head">
+          <view class="form-title">荣誉奖励</view>
+          <view class="form-trash ui-pressable" hover-class="ui-press-icon" bindtap="onClearAll">
+            <image class="icon-delete" src="/images/impl/删除.svg" mode="aspectFit" />
+          </view>
+        </view>
+
+        <view class="row">
+          <view class="row-label">奖励名称</view>
+          <view class="row-right">
+            <input class="row-input" placeholder="可输入实习/比赛/科研项目" value="{{awardName}}" bindinput="onAwardInput" bindblur="onAwardBlur" maxlength="60" />
+          </view>
+        </view>
+        <view wx:if="{{errors.awardName}}" class="field-error">{{errors.awardName}}</view>
+        <view class="divider"></view>
+
+        <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="openTimeSheet">
+          <view class="row-label">时间</view>
+          <view class="row-right">
+            <text class="row-value {{awardYear ? '' : 'row-value--placeholder'}}">{{awardYear ? (awardYear + '-' + awardMonth) : '请选择'}}</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+        <view wx:if="{{errors.awardDate}}" class="field-error">{{errors.awardDate}}</view>
+        <view class="divider"></view>
+
+        <view class="upload">
+          <view class="upload-label">上传附件</view>
+          <view class="upload-box ui-pressable" hover-class="ui-press-soft" bindtap="onChooseFile">
+            <view class="upload-icon">↑</view>
+            <view class="upload-title">上传附件</view>
+            <view class="upload-sub">支持jpg、png、pdf、doc、docx、jpeg、xls、xlsx、zip、7z、rar，10M以内</view>
+            <view wx:if="{{fileNames.length}}" class="upload-files">
+              <view wx:for="{{fileNames}}" wx:key="*this" class="upload-file">{{item}}</view>
+            </view>
+          </view>
+          <view wx:if="{{errors.files}}" class="field-error">{{errors.files}}</view>
+        </view>
+      </view>
+
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+
+  <view class="footer">
+    <view class="footer-inner">
+      <view class="btn btn-secondary ui-pressable" hover-class="ui-press-soft" bindtap="onBack">返回</view>
+      <view class="btn btn-primary ui-pressable" hover-class="ui-press" bindtap="onSave">保存</view>
+    </view>
+  </view>
+
+  <view wx:if="{{sheetVisible}}" class="sheet-mask" bindtap="onSheetMaskTap">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-header">
+        <text class="sheet-cancel" bindtap="onSheetCancel">返回</text>
+        <text class="sheet-title">{{sheetTitle}}</text>
+        <text class="sheet-confirm" bindtap="onSheetConfirm">确认</text>
+      </view>
+
+      <view class="sheet-body">
+        <picker-view class="picker" indicator-style="height: 48px;" value="{{pickerValue}}" bindchange="onPickerChange">
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{years}}" wx:key="*this">{{item}}年</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{months}}" wx:key="*this">{{item}}月</view>
+          </picker-view-column>
+        </picker-view>
+      </view>
+    </view>
+  </view>
+</view>

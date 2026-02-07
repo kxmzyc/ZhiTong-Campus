@@ -1,0 +1,59 @@
+<view class="summary-page">
+  <view class="header">
+    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">用户</view>
+    <view class="nav-container">
+      <view class="nav-links">
+        <view class="nav-link" bindtap="goToHome">小助手</view>
+        <view class="nav-link" bindtap="goToCampus">校招</view>
+        <view class="nav-link active" bindtap="goToResume">简历</view>
+      </view>
+    </view>
+    <view class="header-right"></view>
+  </view>
+
+  <scroll-view class="summary-body" scroll-y="true">
+    <view class="summary-panel">
+      <view class="tips">
+        <view class="tip-card">
+          <view class="tip-text">填写HR较为关注基础信息，让HR能够更快的了解你，填写邮箱用于接收企业方的相关通知。</view>
+        </view>
+      </view>
+
+      <view class="form">
+        <view class="form-head">
+          <view class="form-title">自我评价</view>
+          <view class="form-trash ui-pressable" hover-class="ui-press-icon" bindtap="onClearAll">
+            <image class="icon-delete" src="/images/impl/删除.svg" mode="aspectFit" />
+          </view>
+        </view>
+
+        <view class="desc">
+          <view class="desc-box">
+            <textarea class="desc-input" placeholder="建议根据求职方向，着重突出自身优势，包括性格和能力上的具体表现，来证明你适合这个职位。避免使用过多形容词，注意通过具体事例来证明自己。" value="{{description}}" bindinput="onDescriptionInput" bindblur="onDescriptionBlur" maxlength="1500" auto-height />
+            <view class="desc-count">{{descCount}}/1500</view>
+          </view>
+        </view>
+        <view wx:if="{{errors.description}}" class="field-error">{{errors.description}}</view>
+
+        <view class="form-footer">
+          <view class="optimize-btn ui-pressable" hover-class="ui-press" bindtap="onOptimize">
+            <text class="optimize-text">帮我优化</text>
+          </view>
+          <view class="points-badge ui-pressable" hover-class="ui-press-soft" bindtap="onGoPoints">
+            <image class="icon-points" src="/images/impl/积分.svg" mode="aspectFit" />
+            <text class="points-badge-text">{{pointsBalance}}积分</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+
+  <view class="footer">
+    <view class="footer-inner">
+      <view class="btn btn-secondary ui-pressable" hover-class="ui-press-soft" bindtap="onBack">返回</view>
+      <view class="btn btn-primary ui-pressable" hover-class="ui-press" bindtap="onSave">保存</view>
+    </view>
+  </view>
+</view>

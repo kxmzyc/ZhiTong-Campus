@@ -1,0 +1,119 @@
+<view class="project-page">
+  <view class="header">
+    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">用户</view>
+    <view class="nav-container">
+      <view class="nav-links">
+        <view class="nav-link" bindtap="goToHome">小助手</view>
+        <view class="nav-link" bindtap="goToCampus">校招</view>
+        <view class="nav-link active" bindtap="goToResume">简历</view>
+      </view>
+    </view>
+    <view class="header-right"></view>
+  </view>
+
+  <scroll-view class="project-body" scroll-y="true">
+    <view class="project-panel">
+      <view class="tips">
+        <view class="tip-card">
+          <view class="tip-text">填写HR较为关注基础信息，让HR能够更快的了解你，填写邮箱用于接收企业方的相关通知。</view>
+        </view>
+      </view>
+
+      <view class="form">
+        <view class="form-head">
+          <view class="form-title">项目经历</view>
+          <view class="form-trash ui-pressable" hover-class="ui-press-icon" bindtap="onClearAll">
+            <image class="icon-delete" src="/images/impl/删除.svg" mode="aspectFit" />
+          </view>
+        </view>
+
+        <view class="row">
+          <view class="row-label">项目名称</view>
+          <view class="row-right">
+            <input class="row-input" placeholder="可输入实习/比赛/科研项目" value="{{projectName}}" bindinput="onProjectInput" bindblur="onProjectBlur" maxlength="60" />
+          </view>
+        </view>
+        <view wx:if="{{errors.projectName}}" class="field-error">{{errors.projectName}}</view>
+        <view class="divider"></view>
+
+        <view class="row">
+          <view class="row-label">担任职务</view>
+          <view class="row-right">
+            <input class="row-input" placeholder="请输入" value="{{roleName}}" bindinput="onRoleInput" bindblur="onRoleBlur" maxlength="60" />
+          </view>
+        </view>
+        <view wx:if="{{errors.roleName}}" class="field-error">{{errors.roleName}}</view>
+        <view class="divider"></view>
+
+        <view class="row">
+          <view class="row-label">参与时间</view>
+          <view class="row-right">
+            <view class="project-dates">
+              <view class="project-date ui-pressable" hover-class="ui-press-soft" bindtap="openStartSheet">
+                <text class="row-value {{startYear ? '' : 'row-value--placeholder'}}">{{startYear ? (startYear + '-' + startMonth) : '开始时间'}}</text>
+              </view>
+              <text class="project-date-mid">~</text>
+              <view class="project-date ui-pressable" hover-class="ui-press-soft" bindtap="openEndSheet">
+                <text class="row-value {{endYear ? '' : 'row-value--placeholder'}}">{{endYear ? (endYear + '-' + endMonth) : '结束时间'}}</text>
+              </view>
+            </view>
+            <image class="row-calendar" src="/images/impl/日历.svg" mode="aspectFit" />
+          </view>
+        </view>
+        <view wx:if="{{errors.startDate}}" class="field-error">{{errors.startDate}}</view>
+        <view wx:if="{{errors.endDate}}" class="field-error">{{errors.endDate}}</view>
+        <view wx:if="{{errors.dateRange}}" class="field-error">{{errors.dateRange}}</view>
+        <view class="divider"></view>
+
+        <view class="desc">
+          <view class="desc-label">项目简介</view>
+          <view class="desc-box">
+            <textarea class="desc-input" placeholder="建议先用一句话来简单介绍参与的项目内容，然后分条描述个人职责与贡献，尽量做到用词精准，多用数据。也可以谈谈从这段经历中，你学到了哪些技能，得到了那些成长。" value="{{description}}" bindinput="onDescriptionInput" bindblur="onDescriptionBlur" maxlength="1500" auto-height />
+            <view class="desc-count">{{descCount}}/1500</view>
+          </view>
+        </view>
+        <view wx:if="{{errors.description}}" class="field-error">{{errors.description}}</view>
+
+        <view class="form-footer">
+          <view class="optimize-btn ui-pressable" hover-class="ui-press" bindtap="onOptimize">
+            <text class="optimize-text">帮我优化</text>
+          </view>
+          <view class="points-badge ui-pressable" hover-class="ui-press-soft" bindtap="onGoPoints">
+            <image class="icon-points" src="/images/impl/积分.svg" mode="aspectFit" />
+            <text class="points-badge-text">{{pointsBalance}}积分</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+
+  <view class="footer">
+    <view class="footer-inner">
+      <view class="btn btn-secondary ui-pressable" hover-class="ui-press-soft" bindtap="onBack">返回</view>
+      <view class="btn btn-primary ui-pressable" hover-class="ui-press" bindtap="onSave">保存</view>
+    </view>
+  </view>
+
+  <view wx:if="{{sheetVisible}}" class="sheet-mask" bindtap="onSheetMaskTap">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-header">
+        <text class="sheet-cancel" bindtap="onSheetCancel">返回</text>
+        <text class="sheet-title">{{sheetTitle}}</text>
+        <text class="sheet-confirm" bindtap="onSheetConfirm">确认</text>
+      </view>
+
+      <view class="sheet-body">
+        <picker-view class="picker" indicator-style="height: 48px;" value="{{pickerValue}}" bindchange="onGradPickerChange">
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{gradYears}}" wx:key="*this">{{item}}年</view>
+          </picker-view-column>
+          <picker-view-column>
+            <view class="picker-item" wx:for="{{gradMonths}}" wx:key="*this">{{item}}月</view>
+          </picker-view-column>
+        </picker-view>
+      </view>
+    </view>
+  </view>
+</view>

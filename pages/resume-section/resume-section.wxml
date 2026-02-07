@@ -1,0 +1,16 @@
+<view class="container">
+  <view class="nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-inner">
+      <view class="nav-back ui-pressable" hover-class="ui-press-soft" bindtap="onBack">‹</view>
+      <view class="nav-title">{{title}}</view>
+      <view class="nav-right"></view>
+    </view>
+  </view>
+
+  <view class="content">
+    <view class="card">
+      <view class="tip">{{title}}页面稍后制作</view>
+      <view class="sub">当前已先搭好入口与跳转结构，后续我们逐个模块完善。</view>
+    </view>
+  </view>
+</view>

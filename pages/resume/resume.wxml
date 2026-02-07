@@ -1,0 +1,67 @@
+<!--pages/resume/resume.wxml-->
+<view class="container">
+  <view class="header">
+    <view class="user-avatar" bindtap="goToProfile">用户</view>
+    <view class="nav-container">
+      <view class="nav-links">
+        <view class="nav-link" bindtap="goToHome">小助手</view>
+        <view class="nav-link" bindtap="goToCampus">校招</view>
+        <view class="nav-link active">简历</view>
+      </view>
+    </view>
+    <view class="header-right"></view>
+  </view>
+
+  <scroll-view class="resume-body" scroll-y>
+    <view class="welcome-card">
+      <view class="welcome-title">hi，我是AI简历小助手</view>
+      <view class="welcome-sub">你可以上传简历，我会帮你优化，还可以辅助你快速生成一份优秀的简历哦~</view>
+    </view>
+
+    <view class="action-card" bindtap="onMakeResume">
+      <view class="action-left">
+        <view class="action-title">制作简历 ></view>
+        <view class="action-desc">校招经验不足，让简历智能体帮我做~</view>
+      </view>
+    </view>
+
+    <view class="action-card" bindtap="onUploadResume">
+      <view class="action-left">
+        <view class="action-title">上传简历 ></view>
+        <view class="action-desc">支持 docx、pdf 等格式</view>
+      </view>
+    </view>
+
+    <view class="section">
+      <view class="section-head">
+        <view class="section-title">我的简历</view>
+        <view class="section-sub">{{resumes.length}}份</view>
+      </view>
+
+      <view class="resume-list">
+        <block wx:for="{{displayResumes}}" wx:key="id">
+          <view class="resume-item" bindtap="onResumeTap" bindlongpress="onResumeLongPress" data-index="{{index}}">
+            <view class="resume-item-top">
+              <view class="resume-item-title">{{item.name}} ></view>
+            </view>
+
+            <view class="resume-meta">
+              <view class="meta-row">
+                <view class="meta-text">更新时间：{{item.updatedAt}}</view>
+              </view>
+              <view class="meta-row">
+                <view class="meta-text">简历完成度：{{item.completion}}%</view>
+              </view>
+            </view>
+          </view>
+        </block>
+
+        <view wx:if="{{canCreateMore}}" class="add-resume" bindtap="onAddResume">
+          <view class="add-resume-text">新增简历 +</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="safe-space"></view>
+  </scroll-view>
+</view>

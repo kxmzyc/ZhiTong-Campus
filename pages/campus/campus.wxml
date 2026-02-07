@@ -1,0 +1,101 @@
+<!--pages/campus/campus.wxml-->
+<view class="container">
+  <!-- Header -->
+  <view class="header">
+    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">用户</view>
+    <view class="nav-container">
+      <view class="nav-links">
+        <view class="nav-link" bindtap="goToHome">小助手</view>
+        <view class="nav-link active">校招</view>
+        <view class="nav-link" bindtap="goToResume">简历</view>
+      </view>
+    </view>
+    <view class="header-right"></view>
+  </view>
+
+  <!-- 轮播图 -->
+  <swiper class="banner-swiper" indicator-dots="{{true}}" autoplay="{{true}}" circular="{{true}}" interval="{{3000}}" duration="{{500}}">
+    <swiper-item>
+      <image class="banner-image" src="/images/impl/1.png" mode="aspectFill" />
+    </swiper-item>
+    <swiper-item>
+      <image class="banner-image" src="/images/impl/2.png" mode="aspectFill" />
+    </swiper-item>
+    <swiper-item>
+      <image class="banner-image" src="/images/impl/3.png" mode="aspectFill" />
+    </swiper-item>
+  </swiper>
+
+  <!-- AI功能区域 -->
+  <view class="ai-section">
+    <view class="ai-card ai-card--select ui-pressable" hover-class="ui-press" bindtap="goToAiSelect">
+      <view class="ai-icon-wrap">
+        <view class="ai-icon">🤖</view>
+      </view>
+      <view class="ai-text">
+        <view class="ai-title">AI智选投递</view>
+        <view class="ai-desc">智能匹配最优岗位</view>
+      </view>
+    </view>
+    <view class="ai-card ai-card--auto ui-pressable" hover-class="ui-press" bindtap="goToAiAuto">
+      <view class="ai-icon-wrap">
+        <view class="ai-icon">⚡</view>
+      </view>
+      <view class="ai-text">
+        <view class="ai-title">AI自动投递</view>
+        <view class="ai-desc">全天不间断搜索</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 二级导航栏 -->
+  <view class="sub-nav">
+    <view wx:for="{{subTabs}}" wx:key="*this"
+          class="sub-nav-item ui-pressable {{activeSubTab === index ? 'active' : ''}}" hover-class="ui-press-soft"
+          bindtap="onSubTabChange"
+          data-index="{{index}}">
+      {{item}}
+    </view>
+  </view>
+
+  <!-- 筛选器 -->
+  <view class="filter-section">
+    <view class="filter-bar">
+      <view class="filter-pills">
+        <view class="filter-pill ui-pressable {{selectedIndustries.length ? 'filter-pill--active' : ''}}" hover-class="ui-press-soft" bindtap="onIndustryFilterTap">
+          <text class="filter-pill-text">行业</text>
+          <text class="filter-pill-arrow"></text>
+        </view>
+        <view class="filter-pill ui-pressable {{selectedPositions.length ? 'filter-pill--active' : ''}}" hover-class="ui-press-soft" bindtap="onPositionFilterTap">
+          <text class="filter-pill-text">职位</text>
+          <text class="filter-pill-arrow"></text>
+        </view>
+        <view class="filter-pill ui-pressable {{selectedCities.length ? 'filter-pill--active' : ''}}" hover-class="ui-press-soft" bindtap="onCityFilterTap">
+          <text class="filter-pill-text">城市</text>
+          <text class="filter-pill-arrow"></text>
+        </view>
+      </view>
+      <view class="filter-search-row">
+        <view class="search-box">
+          <view class="search-icon"></view>
+          <input class="search-input" placeholder="搜索" value="{{searchQuery}}" bindinput="onSearchInput" confirm-type="search" bindconfirm="onSearchConfirm" />
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 公司卡片列表 -->
+  <view class="company-list">
+    <view class="company-card ui-pressable" hover-class="ui-press" wx:for="{{companies}}" wx:key="id" bindtap="goToCompanyDetail" data-id="{{item.id}}">
+      <image class="company-logo" src="{{item.logo}}" mode="aspectFit" />
+      <view class="company-info">
+        <view class="company-name">{{item.name}}</view>
+        <view class="company-tags">
+          <text class="tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</text>
+        </view>
+        <view class="company-desc">{{item.description}}</view>
+        <view class="job-count">{{item.jobCount}}{{jobCountSuffix}}</view>
+      </view>
+    </view>
+  </view>
+</view>

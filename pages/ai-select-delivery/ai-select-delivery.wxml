@@ -1,0 +1,115 @@
+<view class="page">
+  <view class="nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-inner">
+      <view class="nav-back" bindtap="onBack">
+        <text class="nav-back-icon">‹</text>
+        <text class="nav-back-text">返回</text>
+      </view>
+      <view class="nav-title">AI智选投递</view>
+      <view class="nav-right"></view>
+    </view>
+  </view>
+
+  <view class="content">
+    <view class="hero">
+      <view class="hero-badge">24H 持续扫描中</view>
+      <view class="hero-card">
+        <view class="hero-left">
+          <view class="hero-text">匹配分析完成～</view>
+        </view>
+        <view class="hero-actions">
+          <view class="hero-btn" bindtap="onRefresh">刷新</view>
+          <view class="hero-btn hero-btn--ghost" bindtap="onChangePlan">变更方案</view>
+        </view>
+      </view>
+    </view>
+
+    <scroll-view class="list-scroll" scroll-y="true" lower-threshold="80" bindscrolltolower="onLoadMore">
+      <view wx:if="{{loadingInit && !jobs.length}}" class="loading-block">加载中...</view>
+
+      <view wx:else>
+        <view class="job-card" wx:for="{{jobs}}" wx:key="id">
+          <view class="job-top">
+            <view class="job-title">{{item.title}}</view>
+            <view class="job-check" catchtap="onToggleJob" data-id="{{item.id}}">
+              <view class="check-circle {{item.selected ? 'check-circle--on' : ''}}">
+                <text wx:if="{{item.selected}}" class="check-icon">✓</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="job-tags">
+            <view class="tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</view>
+          </view>
+
+          <view class="job-divider"></view>
+
+          <view class="job-bottom">
+            <view class="company-left">
+              <view class="company-logo">{{item.companyAbbr}}</view>
+              <view class="company-info">
+                <view class="company-name">{{item.company}}</view>
+                <view class="company-sub">{{item.requirement}}</view>
+              </view>
+            </view>
+            <view class="company-right">
+              <view class="meta-row">
+                <view class="meta-icon">📍</view>
+                <view class="meta-text">{{item.city}}</view>
+              </view>
+              <view class="meta-row">
+                <view class="meta-icon">🕒</view>
+                <view class="meta-text">{{item.dateText}}</view>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{loadingMore}}" class="loading-row">加载中...</view>
+        <view wx:if="{{!hasMore && jobs.length}}" class="loading-row loading-row--end">没有更多了</view>
+      </view>
+
+      <view class="safe-space"></view>
+    </scroll-view>
+
+    <view class="bottom-bar">
+      <view class="auto-wrap" bindtap="onAutoToggle">
+        <view class="check-circle check-circle--small {{autoDeliveryOn ? 'check-circle--on' : ''}}">
+          <text wx:if="{{autoDeliveryOn}}" class="check-icon check-icon--small">✓</text>
+        </view>
+        <view class="auto-text">AI自动投</view>
+        <view class="auto-help">?</view>
+      </view>
+
+      <view class="selected-text">已选择{{selectedCount}}个岗位</view>
+
+      <view class="deliver-btn {{selectedCount ? 'deliver-btn--on' : ''}}" bindtap="onOneClickDeliver">一键投递</view>
+    </view>
+
+    <view wx:if="{{autoModalOpen}}" class="modal-overlay modal-overlay--open" bindtap="closeAutoModal">
+      <view class="modal" catchtap="noop">
+        <view class="modal-close" bindtap="closeAutoModal">×</view>
+        <view class="modal-title">AI自动投功能说明</view>
+
+        <view class="modal-body">
+          <view class="modal-paragraph">在使用职通校园的AI自动投功能前，请先仔细阅读并充分理解本说明。勾选“允许授权职通校园自动投递”即表示你已充分理解并接受由职通校园根据你的简历信息、求职意向，借助AI小助手大模型为你提供24H全站自动解析适配岗位并完成自动投递。</view>
+          <view class="modal-subtitle">AI自动投功能描述如下：</view>
+          <view class="modal-list">
+            <view class="modal-li">智能匹配：基于简历解析，多维匹配岗位。</view>
+            <view class="modal-li">阈值触发：仅人岗匹配度较高时自动投递。</view>
+            <view class="modal-li">投递追踪：查阅AI自动投递的岗位信息。</view>
+          </view>
+        </view>
+
+        <view class="modal-agree" bindtap="toggleAutoAgree">
+          <view class="check-circle check-circle--small {{autoAgreeChecked ? 'check-circle--on' : ''}}">
+            <text wx:if="{{autoAgreeChecked}}" class="check-icon check-icon--small">✓</text>
+          </view>
+          <view class="agree-text">允许授权职通校园自动投递</view>
+        </view>
+
+        <view class="modal-btn {{autoAgreeChecked ? 'modal-btn--on' : 'modal-btn--disabled'}}" bindtap="confirmAutoEnable">同意并开启</view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,64 @@
+<!--pages/profile/profile.wxml-->
+<view class="page">
+  <view class="nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-inner">
+      <view class="nav-back" bindtap="onBack">
+        <text class="nav-back-icon">‹</text>
+        <text class="nav-back-text">返回</text>
+      </view>
+      <view class="nav-title">我的</view>
+      <view class="nav-right"></view>
+    </view>
+  </view>
+
+  <view class="content">
+    <scroll-view class="scroll" scroll-y="true">
+      <view class="card profile-card">
+        <view class="profile-left">
+          <view class="avatar">
+            <image wx:if="{{avatarPath}}" class="avatar-img" src="{{avatarPath}}" mode="aspectFill" />
+          </view>
+          <view class="profile-meta">
+            <view class="name">{{user.name}}</view>
+            <view class="sub">{{user.school}}·{{user.degree}}·{{user.gradYear}}届</view>
+          </view>
+        </view>
+        <view class="profile-edit ui-pressable" hover-class="ui-press-icon" bindtap="onEditProfile">
+          <text class="arrow">›</text>
+        </view>
+      </view>
+
+      <view class="card list-card">
+        <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="goApplied">
+          <view class="row-left">投递过</view>
+          <view class="row-right">
+            <text class="row-count">0</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+        <view class="divider"></view>
+        <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="goPending">
+          <view class="row-left">待网申</view>
+          <view class="row-right">
+            <text class="row-count">0</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+        <view class="divider"></view>
+        <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="goFavorite">
+          <view class="row-left">已收藏</view>
+          <view class="row-right">
+            <text class="row-count">0</text>
+            <text class="row-arrow">›</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="safe-space"></view>
+    </scroll-view>
+
+    <view class="logout-wrap">
+      <button class="logout-btn" hover-class="none" bindtap="onLogout">退出登录</button>
+    </view>
+  </view>
+</view>

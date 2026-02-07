@@ -1,0 +1,92 @@
+<!--pages/index/index.wxml-->
+<view class="container">
+  <!-- Header -->
+  <view class="header">
+    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">用户</view>
+    <view class="nav-container">
+      <view class="nav-links">
+        <view class="nav-link active">小助手</view>
+        <view class="nav-link" bindtap="goToCampus">校招</view>
+        <view class="nav-link" bindtap="goToResume">简历</view>
+      </view>
+    </view>
+    <view class="header-right"></view>
+  </view>
+
+  <!-- Chat Container -->
+  <scroll-view class="chat-container" scroll-y scroll-with-animation scroll-into-view="{{toView}}">
+    <view wx:for="{{messages}}" wx:key="id" id="msg-{{item.id}}" class="message {{item.type === 'user' ? 'message--user' : 'message--bot'}}">
+      <view class="message-content" style="{{item.type === 'user' ? 'background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white;' : ''}}">
+        {{item.content}}
+      </view>
+    </view>
+
+    <view class="suggestions-card">
+      <view class="suggestions-header">
+        <view class="suggestions-title">快捷提问</view>
+      </view>
+      <view class="suggestions">
+        <view wx:for="{{suggestions}}" wx:key="*this" 
+              class="suggestion-item ui-pressable" hover-class="ui-press"
+              bindtap="onSuggestionTap" 
+              data-suggestion="{{item}}">
+          <text class="suggestion-text">{{item}}</text>
+          <view class="suggestion-arrow"></view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- Bottom Navigation -->
+  <view class="bottom-nav bottom-nav--pill">
+    <view class="nav-item nav-pill ui-pressable {{deepThinkingEnabled ? 'nav-pill--active' : ''}}" hover-class="ui-press" bindtap="onDeepThinkingTap">
+      <view class="nav-icon"><image class="nav-icon-img" src="/images/impl/A-思想.svg" mode="aspectFit" /></view>
+      <text class="nav-text">深度思考</text>
+    </view>
+    <view class="nav-item nav-pill ui-pressable" hover-class="ui-press" bindtap="onNewChat">
+      <view class="nav-icon"><image class="nav-icon-img" src="/images/impl/海币-加号-copy.svg" mode="aspectFit" /></view>
+      <text class="nav-text">新建</text>
+    </view>
+    <view class="nav-item nav-pill ui-pressable" hover-class="ui-press" bindtap="onPointsTap">
+      <view class="nav-icon"><image class="nav-icon-img" src="/images/impl/积分.svg" mode="aspectFit" /></view>
+      <text class="nav-text">积分：{{pointsBalance}}</text>
+    </view>
+    <view class="nav-item nav-pill ui-pressable" hover-class="ui-press" bindtap="onHistoryTap">
+      <view class="nav-icon"><image class="nav-icon-img" src="/images/impl/历史账单.svg" mode="aspectFit" /></view>
+      <text class="nav-text">历史</text>
+    </view>
+  </view>
+
+  <view class="history-overlay {{historyOpen ? 'history-overlay--open' : ''}}" bindtap="closeHistory">
+    <view class="history-drawer {{historyOpen ? 'history-drawer--open' : ''}}" catchtap="noop">
+      <view class="history-header">
+        <view class="history-title">历史记录</view>
+      </view>
+
+      <scroll-view class="history-list" scroll-y="true">
+        <view wx:if="{{!historySessions.length}}" class="history-empty">暂无记录</view>
+
+        <view wx:else>
+          <view class="history-item" wx:for="{{historySessions}}" wx:key="id" bindtap="onSelectHistory" data-id="{{item.id}}">
+            <view class="history-item-text">{{item.previewText}}</view>
+            <view class="history-item-del ui-pressable" hover-class="ui-press-icon" catchtap="onDeleteHistory" data-id="{{item.id}}">
+              <image class="history-item-del-icon" src="/images/impl/删除.svg" mode="aspectFit" />
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+
+  <!-- Input Area -->
+  <view class="input-area">
+    <input class="input-field" 
+           placeholder="请输入..." 
+           value="{{inputValue}}"
+           bindinput="onInputChange"
+           bindconfirm="sendMessage" />
+    <view class="send-button ui-pressable" hover-class="ui-press-fab" bindtap="sendMessage">
+      <text class="send-text">发送</text>
+    </view>
+  </view>
+</view>

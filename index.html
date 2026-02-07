@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>职通校园 - 校招小程序</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #f0e6ff 0%, #ffffff 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            max-width: 430px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .user-avatar {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .home-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #8b5cf6;
+            position: relative;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            padding: 4px 0;
+        }
+
+        .home-title::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #8b5cf6;
+            border-radius: 1px;
+        }
+
+        .home-title:hover {
+            transform: translateY(-1px);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+        }
+
+        .nav-link {
+            color: #666;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            padding: 6px 12px;
+            border-radius: 8px;
+            position: relative;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            color: #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .nav-link.active {
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: #8b5cf6;
+            border-radius: 1px;
+        }
+
+        .nav-link:active {
+            transform: translateY(0);
+            background: rgba(139, 92, 246, 0.2);
+        }
+
+        .header-right {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Chat Area */
+        .chat-container {
+            flex: 1;
+            padding: 20px 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .bot-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            background: white;
+            padding: 12px 16px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 280px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        /* Suggestions */
+        .suggestions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .suggestion-item {
+            background: white;
+            padding: 14px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .suggestion-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+            background: linear-gradient(135deg, #faf5ff, #ffffff);
+        }
+
+        .suggestion-arrow {
+            width: 16px;
+            height: 16px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+        }
+
+        .suggestion-arrow::after {
+            content: '›';
+            font-weight: bold;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px 8px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+
+        .nav-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .nav-icon {
+            width: 20px;
+            height: 20px;
+            background: #666;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .nav-item:hover .nav-icon {
+            background: #8b5cf6;
+        }
+
+        .nav-text {
+            font-size: 11px;
+            color: #666;
+            transition: color 0.2s;
+        }
+
+        .nav-item:hover .nav-text {
+            color: #8b5cf6;
+        }
+
+        .points-item {
+            position: relative;
+        }
+
+        .points-badge {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .lightning-icon {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+        }
+
+        /* Input Area */
+        .input-area {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 12px 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .input-field {
+            flex: 1;
+            background: #f5f5f5;
+            border: none;
+            padding: 12px 16px;
+            border-radius: 24px;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            background: white;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+        }
+
+        .input-field::placeholder {
+            color: #999;
+        }
+
+        .send-button {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+        }
+
+        .send-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .send-arrow {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 430px) {
+            body {
+                max-width: 100%;
+            }
+
+            .nav-links {
+                margin-left: 12px;
+                gap: 16px;
+            }
+
+            .message-content {
+                max-width: calc(100vw - 80px);
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message {
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .suggestion-item {
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .suggestion-item:nth-child(1) { animation-delay: 0.1s; }
+        .suggestion-item:nth-child(2) { animation-delay: 0.2s; }
+        .suggestion-item:nth-child(3) { animation-delay: 0.3s; }
+        .suggestion-item:nth-child(4) { animation-delay: 0.4s; }
+        .suggestion-item:nth-child(5) { animation-delay: 0.5s; }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="user-avatar">用户</div>
+    <div class="nav-container">
+        <a href="#" class="home-title">职通校园</a>
+        <nav class="nav-links">
+            <a href="#" class="nav-link">校招</a>
+            <a href="#" class="nav-link">简历</a>
+        </nav>
+    </div>
+    <div class="header-right"></div>
+</header>
+
+<!-- Chat Container -->
+<main class="chat-container">
+    <div class="message">
+        <div class="bot-avatar">小助手</div>
+        <div class="message-content">
+            Hi, 我是校园智聘AI助手, 很高兴见到你!
+        </div>
+    </div>
+
+    <div class="message">
+        <div class="bot-avatar">小助手</div>
+        <div class="message-content">
+            可以直接告诉我, 你的目标岗位、意向城市, 或者点击下方快捷会话~
+        </div>
+    </div>
+
+    <div class="suggestions">
+        <div class="suggestion-item">
+            <span>根据专业找适合的工作机会。</span>
+            <div class="suggestion-arrow"></div>
+        </div>
+        <div class="suggestion-item">
+            <span>热门行业有哪些?</span>
+            <div class="suggestion-arrow"></div>
+        </div>
+        <div class="suggestion-item">
+            <span>已有明确岗位意向, 给我一些求职建议。</span>
+            <div class="suggestion-arrow"></div>
+        </div>
+        <div class="suggestion-item">
+            <span>推荐一些热门校招岗位。</span>
+            <div class="suggestion-arrow"></div>
+        </div>
+        <div class="suggestion-item">
+            <span>对专业要求较低的工作机会。</span>
+            <div class="suggestion-arrow"></div>
+        </div>
+    </div>
+</main>
+
+<!-- Bottom Navigation -->
+<nav class="bottom-nav">
+    <div class="nav-item">
+        <div class="nav-icon"></div>
+        <span class="nav-text">深度思考</span>
+    </div>
+    <div class="nav-item">
+        <div class="nav-icon"></div>
+        <span class="nav-text">新建</span>
+    </div>
+    <div class="nav-item points-item">
+        <div class="points-badge">
+            <div class="lightning-icon"></div>
+            <span>我的积分</span>
+        </div>
+    </div>
+    <div class="nav-item">
+        <div class="nav-icon"></div>
+        <span class="nav-text">历史</span>
+    </div>
+</nav>
+
+<!-- Input Area -->
+<div class="input-area">
+    <input type="text" class="input-field" placeholder="请输入...">
+    <div class="send-button">
+        <span class="send-arrow">↑</span>
+    </div>
+</div>
+
+<script>
+    // Add interactivity
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle suggestion clicks
+        const suggestions = document.querySelectorAll('.suggestion-item');
+        suggestions.forEach(suggestion => {
+            suggestion.addEventListener('click', function() {
+                const text = this.querySelector('span').textContent;
+                const inputField = document.querySelector('.input-field');
+                inputField.value = text;
+                inputField.focus();
+            });
+        });
+
+        // Handle send button
+        const sendButton = document.querySelector('.send-button');
+        const inputField = document.querySelector('.input-field');
+
+        sendButton.addEventListener('click', sendMessage);
+        inputField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = inputField.value.trim();
+            if (message) {
+                // Create new message element
+                const chatContainer = document.querySelector('.chat-container');
+                const newMessage = document.createElement('div');
+                newMessage.className = 'message';
+                newMessage.style.justifyContent = 'flex-end';
+                newMessage.innerHTML = `
+                        <div class="message-content" style="background: linear-gradient(135deg, #8b5cf6, #a78bfa); color: white;">
+                            ${message}
+                        </div>
+                        <div class="bot-avatar" style="background: #ddd; color: #333;">我</div>
+                    `;
+
+                chatContainer.appendChild(newMessage);
+                inputField.value = '';
+
+                // Scroll to bottom
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                // Simulate bot response after a delay
+                setTimeout(() => {
+                    const botResponse = document.createElement('div');
+                    botResponse.className = 'message';
+                    botResponse.innerHTML = `
+                            <div class="bot-avatar">智</div>
+                            <div class="message-content">
+                                收到你的消息: "${message}"。我正在为您分析...
+                            </div>
+                        `;
+                    chatContainer.appendChild(botResponse);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }, 1000);
+            }
+        }
+
+        // Handle nav links
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                navLinks.forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Handle bottom nav items
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const text = this.querySelector('.nav-text').textContent;
+                console.log(`点击了: ${text}`);
+            });
+        });
+    });
+</script>
+</body>
+</html>
