@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ZhiTongXiaoYuan
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/zhitongxiaoyuan?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 041029
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  configuration:
+    # 日志输出
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    # 驼峰命名转换
+    map-underscore-to-camel-case: true
+  # 实体类扫描路径
+  type-aliases-package: com.example.zhitongxiaoyuan.entity
+  # Mapper XML 文件位置
+  mapper-locations: classpath:mapper/*.xml
+  global-config:
+    db-config:
+      # 主键类型（AUTO 自增，ASSIGN_ID 雪花算法）
+      id-type: AUTO
+      # 逻辑删除字段
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
