@@ -1,7 +1,11 @@
+const api = require('../../utils/api');
+
 Page({
   data: {
     statusBarHeight: 0,
     resumeId: '',
+    backendResumeId: null,
+    internshipId: null, // 当前编辑的实习经历ID
     pointsBalance: 0,
 
     companyName: '',
@@ -48,48 +52,112 @@ Page({
   },
 
   loadInternship() {
-    const key = this.getStorageKey();
-    const data = wx.getStorageSync(key) || {};
+    const resumeId = this.data.resumeId;
+    const match = String(resumeId).match(/^r_(\d+)$/);
+    if (!match) {
+      return;
+    }
 
-    const start = data.startYear
-      ? { y: String(data.startYear), m: String(data.startMonth || '') }
-      : this.parseYearMonth(data.startDate);
-    const end = data.endYear
-      ? { y: String(data.endYear), m: String(data.endMonth || '') }
-      : this.parseYearMonth(data.endDate);
+    const backendId = parseInt(match[1]);
+    this.setData({ backendResumeId: backendId });
 
-    const description = data.description || '';
+    // 从后端API加载实习经历
+    wx.showLoading({ title: '加载中...' });
 
-    this.setData({
-      companyName: data.companyName || '',
-      positionName: data.positionName || '',
+    api.getInternshipList(backendId)
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200 && res.data && res.data.length > 0) {
+          // 加载第一条实习经历
+          const data = res.data[0];
+          this.setData({ internshipId: data.id });
 
-      startYear: start.y,
-      startMonth: start.m,
-      endYear: end.y,
-      endMonth: end.m,
+          const parseYearMonth = (s) => {
+            if (!s) return { y: '', m: '' };
+            const d = new Date(s);
+            return {
+              y: String(d.getFullYear()),
+              m: String(d.getMonth() + 1).padStart(2, '0')
+            };
+          };
 
-      description,
-      descCount: String(description).length
-    });
+          const start = parseYearMonth(data.startDate);
+          const end = parseYearMonth(data.endDate);
+
+          this.setData({
+            companyName: data.company || '',
+            positionName: data.position || '',
+            startYear: start.y,
+            startMonth: start.m,
+            endYear: end.y,
+            endMonth: end.m,
+            description: data.description || '',
+            descCount: String(data.description || '').length
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('加载实习经历失败:', err);
+      });
   },
 
   saveInternship() {
-    const key = this.getStorageKey();
-    const stored = wx.getStorageSync(key) || {};
+    const backendId = this.data.backendResumeId;
+    if (!backendId) {
+      wx.showToast({ title: '简历ID无效', icon: 'none' });
+      return;
+    }
 
+    // 构建保存数据
     const data = {
-      ...stored,
-      companyName: this.data.companyName,
-      positionName: this.data.positionName,
-      startYear: this.data.startYear,
-      startMonth: this.data.startMonth,
-      endYear: this.data.endYear,
-      endMonth: this.data.endMonth,
-      description: this.data.description
+      resumeId: backendId,
+      company: this.data.companyName || '',
+      position: this.data.positionName || '',
+      startDate: this.data.startYear && this.data.startMonth
+        ? `${this.data.startYear}-${this.data.startMonth}-01`
+        : null,
+      endDate: this.data.endYear && this.data.endMonth
+        ? `${this.data.endYear}-${this.data.endMonth}-01`
+        : null,
+      description: this.data.description || ''
     };
 
-    wx.setStorageSync(key, data);
+    wx.showLoading({ title: '保存中...' });
+
+    // 判断是创建还是更新
+    const apiCall = this.data.internshipId
+      ? api.updateInternship({ id: this.data.internshipId, ...data })
+      : api.createInternship(data);
+
+    apiCall
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200) {
+          wx.showToast({
+            title: '保存成功',
+            icon: 'success'
+          });
+
+          // 保存成功后更新internshipId
+          if (res.data && res.data.id) {
+            this.setData({ internshipId: res.data.id });
+          }
+        } else {
+          wx.showToast({
+            title: res.message || '保存失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('保存实习经历失败:', err);
+        wx.showToast({
+          title: '保存失败，请检查网络',
+          icon: 'none'
+        });
+      });
   },
 
   initGradPicker() {

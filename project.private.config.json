@@ -17,5 +17,25 @@
     "checkInvalidKey": true,
     "ignoreDevUnusedFiles": true,
     "bigPackageSizeSupport": false
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "测试简历编辑",
+          "pathName": "pages/resume-make/resume-make",
+          "query": "id=r_1",
+          "scene": null,
+          "launchMode": "default"
+        },
+        {
+          "name": "测试简历预览",
+          "pathName": "pages/resume-preview/resume-preview",
+          "query": "id=1",
+          "launchMode": "default",
+          "scene": null
+        }
+      ]
+    }
   }
 }

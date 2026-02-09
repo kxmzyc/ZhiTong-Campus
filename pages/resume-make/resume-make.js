@@ -1,6 +1,9 @@
+const api = require('../../utils/api');
+
 Page({
   data: {
     resumeId: '',
+    backendResumeId: null, // 后端简历ID
     resumeName: '我的简历1',
     completion: 0,
     completionAnim: 0,
@@ -49,20 +52,51 @@ Page({
 
   loadResume() {
     const resumeId = this.data.resumeId;
-    const resumes = wx.getStorageSync(this.getResumeStorageKey()) || [];
-    const target = (resumes || []).find(r => r && r.id === resumeId);
 
-    if (!target) {
+    // 从resumeId提取后端ID (格式: r_1)
+    const match = String(resumeId).match(/^r_(\d+)$/);
+    if (!match) {
       return;
     }
 
-    this.setData({
-      resumeName: target.name || this.data.resumeName,
-      completion: Number(target.completion) || 0
-    });
+    const backendId = parseInt(match[1]);
+    this.setData({ backendResumeId: backendId });
+
+    // 从后端API加载简历数据
+    api.getResumeDetail(backendId)
+      .then(res => {
+        if (res.code === 200 && res.data) {
+          this.setData({
+            resumeName: res.data.name || this.data.resumeName
+          });
+        }
+      })
+      .catch(err => {
+        console.error('加载简历失败:', err);
+      });
   },
 
   saveResumePatch(patch) {
+    const backendId = this.data.backendResumeId;
+    if (!backendId) {
+      return;
+    }
+
+    // 保存到后端API
+    api.updateResume({
+      id: backendId,
+      ...patch
+    })
+    .then(res => {
+      if (res.code === 200) {
+        console.log('简历更新成功');
+      }
+    })
+    .catch(err => {
+      console.error('简历更新失败:', err);
+    });
+
+    // 同时保存到本地作为备份
     const resumeId = this.data.resumeId;
     const resumes = wx.getStorageSync(this.getResumeStorageKey()) || [];
     const next = (resumes || []).map(r => {
@@ -97,101 +131,73 @@ Page({
   },
 
   computeCompletion() {
-    const weights = {
-      profile: 20,
-      education: 15,
-      internship: 15,
-      campus: 10,
-      project: 10,
-      awards: 10,
-      skills: 10,
-      summary: 10
-    };
+    const backendId = this.data.backendResumeId;
+    if (!backendId) {
+      return 0;
+    }
 
-    const basic = wx.getStorageSync('profile_basic_info') || {};
-    const profileOk = this.isFilled(basic.name)
-      && this.isFilled(basic.gender)
-      && this.isFilled(basic.degree)
-      && this.isFilled(basic.school)
-      && this.isFilled(basic.major)
-      && this.isFilled(basic.gradYear)
-      && this.isFilled(basic.gradMonth)
-      && this.isArrayFilled(basic.intendedPositions)
-      && this.isArrayFilled(basic.intendedIndustries)
-      && this.isArrayFilled(basic.intendedCities);
+    // 从后端API获取数据计算完成度
+    Promise.all([
+      api.getResumeDetail(backendId),
+      api.getEducationList(backendId),
+      api.getInternshipList(backendId),
+      api.getProjectList(backendId),
+      api.getAwardList(backendId)
+    ])
+    .then(([resumeRes, eduRes, internRes, projRes, awardRes]) => {
+      const weights = {
+        profile: 20,
+        education: 15,
+        internship: 15,
+        campus: 10,
+        project: 10,
+        awards: 10,
+        skills: 10,
+        summary: 10
+      };
 
-    const read = (type) => {
-      const key = this.getSectionStorageKey(type);
-      if (!key) return {};
-      return wx.getStorageSync(key) || {};
-    };
+      let total = 0;
 
-    const edu = read('education');
-    const educationOk = !!(edu.school && edu.school.name)
-      && !!(edu.degree && edu.degree.name)
-      && !!(edu.majorCategory && edu.majorCategory.name)
-      && this.isFilled(edu.majorName)
-      && this.isFilled(edu.startYear)
-      && this.isFilled(edu.startMonth)
-      && this.isFilled(edu.endYear)
-      && this.isFilled(edu.endMonth)
-      && !!(edu.studyMode && edu.studyMode.name)
-      && this.isFilled(edu.description);
+      // 基本信息
+      if (resumeRes.code === 200 && resumeRes.data) {
+        const resume = resumeRes.data;
+        const profileOk = resume.name && resume.phone && resume.email &&
+                         resume.education && resume.school && resume.jobIntention;
+        if (profileOk) total += weights.profile;
 
-    const intern = read('internship');
-    const internshipOk = this.isFilled(intern.companyName)
-      && this.isFilled(intern.positionName)
-      && this.isFilled(intern.startYear)
-      && this.isFilled(intern.startMonth)
-      && this.isFilled(intern.endYear)
-      && this.isFilled(intern.endMonth)
-      && this.isFilled(intern.description);
+        if (resume.skills) total += weights.skills;
+        if (resume.selfEvaluation) total += weights.summary;
+      }
 
-    const campus = read('campus');
-    const campusOk = this.isFilled(campus.schoolName)
-      && this.isFilled(campus.orgName)
-      && this.isFilled(campus.roleName)
-      && this.isFilled(campus.startYear)
-      && this.isFilled(campus.startMonth)
-      && this.isFilled(campus.endYear)
-      && this.isFilled(campus.endMonth)
-      && this.isFilled(campus.description);
+      // 教育经历
+      if (eduRes.code === 200 && eduRes.data && eduRes.data.length > 0) {
+        total += weights.education;
+      }
 
-    const project = read('project');
-    const projectOk = this.isFilled(project.projectName)
-      && this.isFilled(project.roleName)
-      && this.isFilled(project.startYear)
-      && this.isFilled(project.startMonth)
-      && this.isFilled(project.endYear)
-      && this.isFilled(project.endMonth)
-      && this.isFilled(project.description);
+      // 实习经历
+      if (internRes.code === 200 && internRes.data && internRes.data.length > 0) {
+        total += weights.internship;
+      }
 
-    const awards = read('awards');
-    const awardsOk = this.isFilled(awards.awardName)
-      && this.isFilled(awards.awardYear)
-      && this.isFilled(awards.awardMonth)
-      && this.isArrayFilled(awards.files);
+      // 项目经历
+      if (projRes.code === 200 && projRes.data && projRes.data.length > 0) {
+        total += weights.project;
+      }
 
-    const skills = read('skills');
-    const skillsOk = this.isFilled(skills.langSkill)
-      && this.isFilled(skills.techSkill)
-      && this.isFilled(skills.traitSkill)
-      && this.isFilled(skills.hobbySkill);
+      // 获奖经历
+      if (awardRes.code === 200 && awardRes.data && awardRes.data.length > 0) {
+        total += weights.awards;
+      }
 
-    const summary = read('summary');
-    const summaryOk = this.isFilled(summary.description);
+      return Math.max(0, Math.min(100, total));
+    })
+    .catch(err => {
+      console.error('计算完成度失败:', err);
+      return 0;
+    });
 
-    let total = 0;
-    if (profileOk) total += weights.profile;
-    if (educationOk) total += weights.education;
-    if (internshipOk) total += weights.internship;
-    if (campusOk) total += weights.campus;
-    if (projectOk) total += weights.project;
-    if (awardsOk) total += weights.awards;
-    if (skillsOk) total += weights.skills;
-    if (summaryOk) total += weights.summary;
-
-    return Math.max(0, Math.min(100, total));
+    // 临时返回0，实际值会通过Promise异步更新
+    return 0;
   },
 
   animateCompletionTo(target) {
@@ -227,9 +233,70 @@ Page({
   },
 
   refreshCompletion() {
-    const next = this.computeCompletion();
-    this.animateCompletionTo(next);
-    this.saveResumePatch({ completion: next });
+    const backendId = this.data.backendResumeId;
+    if (!backendId) {
+      return;
+    }
+
+    // 从后端API获取数据计算完成度
+    Promise.all([
+      api.getResumeDetail(backendId),
+      api.getEducationList(backendId),
+      api.getInternshipList(backendId),
+      api.getProjectList(backendId),
+      api.getAwardList(backendId)
+    ])
+    .then(([resumeRes, eduRes, internRes, projRes, awardRes]) => {
+      const weights = {
+        profile: 20,
+        education: 15,
+        internship: 15,
+        project: 10,
+        awards: 10,
+        skills: 10,
+        summary: 10
+      };
+
+      let total = 0;
+
+      // 基本信息
+      if (resumeRes.code === 200 && resumeRes.data) {
+        const resume = resumeRes.data;
+        const profileOk = resume.name && resume.phone && resume.email &&
+                         resume.education && resume.school && resume.jobIntention;
+        if (profileOk) total += weights.profile;
+
+        if (resume.skills) total += weights.skills;
+        if (resume.selfEvaluation) total += weights.summary;
+      }
+
+      // 教育经历
+      if (eduRes.code === 200 && eduRes.data && eduRes.data.length > 0) {
+        total += weights.education;
+      }
+
+      // 实习经历
+      if (internRes.code === 200 && internRes.data && internRes.data.length > 0) {
+        total += weights.internship;
+      }
+
+      // 项目经历
+      if (projRes.code === 200 && projRes.data && projRes.data.length > 0) {
+        total += weights.project;
+      }
+
+      // 获奖经历
+      if (awardRes.code === 200 && awardRes.data && awardRes.data.length > 0) {
+        total += weights.awards;
+      }
+
+      const next = Math.max(0, Math.min(100, total));
+      this.animateCompletionTo(next);
+      this.saveResumePatch({ completion: next });
+    })
+    .catch(err => {
+      console.error('刷新完成度失败:', err);
+    });
   },
 
   onStartEditName() {
@@ -323,9 +390,8 @@ Page({
   },
 
   onPreview() {
-    // 从 resumeId (格式: r_1) 中提取 backendId (格式: 1)
-    const resumeId = this.data.resumeId;
-    if (!resumeId) {
+    const backendId = this.data.backendResumeId;
+    if (!backendId) {
       wx.showToast({
         title: '简历ID不存在',
         icon: 'none'
@@ -333,18 +399,7 @@ Page({
       return;
     }
 
-    // 提取数字部分作为 backendId
-    const backendId = resumeId.replace(/^r_/, '');
-
-    if (!backendId) {
-      wx.showToast({
-        title: '无效的简历ID',
-        icon: 'none'
-      });
-      return;
-    }
-
-    // 跳转到简历预览页面
+    // 直接跳转到预览页面
     wx.navigateTo({
       url: `/pages/resume-preview/resume-preview?id=${backendId}`
     });

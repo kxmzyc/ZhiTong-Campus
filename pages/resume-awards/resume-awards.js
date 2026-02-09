@@ -1,16 +1,19 @@
+const api = require('../../utils/api');
+
 Page({
   data: {
     statusBarHeight: 0,
     resumeId: '',
+    backendResumeId: null,
+    awardId: null,
     pointsBalance: 0,
 
     awardName: '',
+    awardLevel: '',
     awardYear: '',
     awardMonth: '',
 
-    fileNames: [],
-    files: [],
-
+    description: '',
     descCount: 0,
 
     sheetVisible: false,
@@ -21,10 +24,6 @@ Page({
     tempYearIndex: 0,
     tempMonthIndex: 0,
     errors: {}
-  },
-
-  getStorageKey() {
-    return `resume_awards_${this.data.resumeId}`;
   },
 
   noop() {},
@@ -38,34 +37,106 @@ Page({
   },
 
   loadAwards() {
-    const key = this.getStorageKey();
-    const data = wx.getStorageSync(key) || {};
+    const resumeId = this.data.resumeId;
+    const match = String(resumeId).match(/^r_(\d+)$/);
+    if (!match) {
+      return;
+    }
 
-    const files = Array.isArray(data.files) ? data.files : [];
-    const fileNames = files.map(f => (f && (f.name || f.fileName)) || '').filter(Boolean);
+    const backendId = parseInt(match[1]);
+    this.setData({ backendResumeId: backendId });
 
-    this.setData({
-      awardName: data.awardName || '',
-      awardYear: data.awardYear ? String(data.awardYear) : '',
-      awardMonth: data.awardMonth ? String(data.awardMonth) : '',
-      files,
-      fileNames
-    });
+    // 从后端API加载获奖经历
+    wx.showLoading({ title: '加载中...' });
+
+    api.getAwardList(backendId)
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200 && res.data && res.data.length > 0) {
+          // 加载第一条获奖经历
+          const data = res.data[0];
+          this.setData({ awardId: data.id });
+
+          const parseYearMonth = (s) => {
+            if (!s) return { y: '', m: '' };
+            const d = new Date(s);
+            return {
+              y: String(d.getFullYear()),
+              m: String(d.getMonth() + 1).padStart(2, '0')
+            };
+          };
+
+          const date = parseYearMonth(data.awardDate);
+
+          this.setData({
+            awardName: data.name || '',
+            awardLevel: data.level || '',
+            awardYear: date.y,
+            awardMonth: date.m,
+            description: data.description || '',
+            descCount: String(data.description || '').length
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('加载获奖经历失败:', err);
+      });
   },
 
   saveAwards() {
-    const key = this.getStorageKey();
-    const stored = wx.getStorageSync(key) || {};
+    const backendId = this.data.backendResumeId;
+    if (!backendId) {
+      wx.showToast({ title: '简历ID无效', icon: 'none' });
+      return;
+    }
 
+    // 构建保存数据
     const data = {
-      ...stored,
-      awardName: this.data.awardName,
-      awardYear: this.data.awardYear,
-      awardMonth: this.data.awardMonth,
-      files: this.data.files
+      resumeId: backendId,
+      name: this.data.awardName || '',
+      level: this.data.awardLevel || '',
+      awardDate: this.data.awardYear && this.data.awardMonth
+        ? `${this.data.awardYear}-${this.data.awardMonth}-01`
+        : null,
+      description: this.data.description || ''
     };
 
-    wx.setStorageSync(key, data);
+    wx.showLoading({ title: '保存中...' });
+
+    // 判断是创建还是更新
+    const apiCall = this.data.awardId
+      ? api.updateAward({ id: this.data.awardId, ...data })
+      : api.createAward(data);
+
+    apiCall
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200) {
+          wx.showToast({
+            title: '保存成功',
+            icon: 'success'
+          });
+
+          // 保存成功后更新awardId
+          if (res.data && res.data.id) {
+            this.setData({ awardId: res.data.id });
+          }
+        } else {
+          wx.showToast({
+            title: res.message || '保存失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('保存获奖经历失败:', err);
+        wx.showToast({
+          title: '保存失败，请检查网络',
+          icon: 'none'
+        });
+      });
   },
 
   initPicker() {
@@ -107,6 +178,52 @@ Page({
       errors: {
         ...errors,
         awardName: value ? '' : '请输入奖励名称'
+      }
+    });
+  },
+
+  onLevelInput(e) {
+    const errors = this.data.errors || {};
+    this.setData({
+      awardLevel: (e && e.detail && e.detail.value) || '',
+      errors: {
+        ...errors,
+        awardLevel: ''
+      }
+    });
+  },
+
+  onLevelBlur() {
+    const value = String(this.data.awardLevel || '').trim();
+    const errors = this.data.errors || {};
+    this.setData({
+      errors: {
+        ...errors,
+        awardLevel: value ? '' : '请输入奖励等级'
+      }
+    });
+  },
+
+  onDescriptionInput(e) {
+    const value = (e && e.detail && e.detail.value) || '';
+    const errors = this.data.errors || {};
+    this.setData({
+      description: value,
+      descCount: String(value).length,
+      errors: {
+        ...errors,
+        description: ''
+      }
+    });
+  },
+
+  onDescriptionBlur() {
+    const value = String(this.data.description || '').trim();
+    const errors = this.data.errors || {};
+    this.setData({
+      errors: {
+        ...errors,
+        description: value ? '' : '请输入获奖描述'
       }
     });
   },
@@ -195,26 +312,6 @@ Page({
     this.closeSheet();
   },
 
-  onChooseFile() {
-    wx.chooseMessageFile({
-      count: 3,
-      type: 'file',
-      success: (res) => {
-        const files = (res && res.tempFiles) ? res.tempFiles : [];
-        const fileNames = files.map(f => (f && (f.name || f.fileName)) || '').filter(Boolean);
-        const errors = this.data.errors || {};
-        this.setData({
-          files,
-          fileNames,
-          errors: {
-            ...errors,
-            files: ''
-          }
-        });
-      }
-    });
-  },
-
   onOptimize() {
     wx.showToast({
       title: '优化功能稍后制作',
@@ -260,8 +357,15 @@ Page({
       confirmColor: '#ef4444',
       success: (res) => {
         if (!res.confirm) return;
-        const key = this.getStorageKey();
-        wx.removeStorageSync(key);
+        // 清空表单数据
+        this.setData({
+          awardName: '',
+          awardLevel: '',
+          awardYear: '',
+          awardMonth: '',
+          description: '',
+          descCount: 0
+        });
         wx.navigateBack({
           delta: 1
         });
@@ -273,10 +377,9 @@ Page({
     const errors = {};
 
     if (!String(this.data.awardName || '').trim()) errors.awardName = '请输入奖励名称';
+    if (!String(this.data.awardLevel || '').trim()) errors.awardLevel = '请输入奖励等级';
     if (!String(this.data.awardYear || '').trim()) errors.awardDate = '请选择时间';
-
-    const files = Array.isArray(this.data.files) ? this.data.files : [];
-    if (!files.length) errors.files = '请上传至少1个附件';
+    if (!String(this.data.description || '').trim()) errors.description = '请输入获奖描述';
 
     return errors;
   },
@@ -289,15 +392,12 @@ Page({
     }
     this.setData({ errors: {} });
     this.saveAwards();
-    wx.showToast({
-      title: '保存成功',
-      icon: 'success'
-    });
+    // 注意:保存成功的提示和跳转已经在saveAwards方法中处理
     setTimeout(() => {
       wx.navigateBack({
         delta: 1
       });
-    }, 800);
+    }, 1500);
   },
 
   onBack() {

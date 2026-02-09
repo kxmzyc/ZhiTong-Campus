@@ -1,7 +1,11 @@
+const api = require('../../utils/api');
+
 Page({
   data: {
     statusBarHeight: 0,
     resumeId: '',
+    backendResumeId: null,
+    projectId: null,
     pointsBalance: 0,
 
     projectName: '',
@@ -26,10 +30,6 @@ Page({
     errors: {}
   },
 
-  getStorageKey() {
-    return `resume_project_${this.data.resumeId}`;
-  },
-
   noop() {},
 
   loadPointsBalance() {
@@ -48,46 +48,112 @@ Page({
   },
 
   loadProject() {
-    const key = this.getStorageKey();
-    const data = wx.getStorageSync(key) || {};
+    const resumeId = this.data.resumeId;
+    const match = String(resumeId).match(/^r_(\d+)$/);
+    if (!match) {
+      return;
+    }
 
-    const start = data.startYear
-      ? { y: String(data.startYear), m: String(data.startMonth || '') }
-      : this.parseYearMonth(data.startDate);
-    const end = data.endYear
-      ? { y: String(data.endYear), m: String(data.endMonth || '') }
-      : this.parseYearMonth(data.endDate);
+    const backendId = parseInt(match[1]);
+    this.setData({ backendResumeId: backendId });
 
-    const description = data.description || '';
+    // 从后端API加载项目经历
+    wx.showLoading({ title: '加载中...' });
 
-    this.setData({
-      projectName: data.projectName || '',
-      roleName: data.roleName || '',
-      startYear: start.y,
-      startMonth: start.m,
-      endYear: end.y,
-      endMonth: end.m,
-      description,
-      descCount: String(description).length
-    });
+    api.getProjectList(backendId)
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200 && res.data && res.data.length > 0) {
+          // 加载第一条项目经历
+          const data = res.data[0];
+          this.setData({ projectId: data.id });
+
+          const parseYearMonth = (s) => {
+            if (!s) return { y: '', m: '' };
+            const d = new Date(s);
+            return {
+              y: String(d.getFullYear()),
+              m: String(d.getMonth() + 1).padStart(2, '0')
+            };
+          };
+
+          const start = parseYearMonth(data.startDate);
+          const end = parseYearMonth(data.endDate);
+
+          this.setData({
+            projectName: data.name || '',
+            roleName: data.role || '',
+            startYear: start.y,
+            startMonth: start.m,
+            endYear: end.y,
+            endMonth: end.m,
+            description: data.description || '',
+            descCount: String(data.description || '').length
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('加载项目经历失败:', err);
+      });
   },
 
   saveProject() {
-    const key = this.getStorageKey();
-    const stored = wx.getStorageSync(key) || {};
+    const backendId = this.data.backendResumeId;
+    if (!backendId) {
+      wx.showToast({ title: '简历ID无效', icon: 'none' });
+      return;
+    }
 
+    // 构建保存数据
     const data = {
-      ...stored,
-      projectName: this.data.projectName,
-      roleName: this.data.roleName,
-      startYear: this.data.startYear,
-      startMonth: this.data.startMonth,
-      endYear: this.data.endYear,
-      endMonth: this.data.endMonth,
-      description: this.data.description
+      resumeId: backendId,
+      name: this.data.projectName || '',
+      role: this.data.roleName || '',
+      startDate: this.data.startYear && this.data.startMonth
+        ? `${this.data.startYear}-${this.data.startMonth}-01`
+        : null,
+      endDate: this.data.endYear && this.data.endMonth
+        ? `${this.data.endYear}-${this.data.endMonth}-01`
+        : null,
+      description: this.data.description || ''
     };
 
-    wx.setStorageSync(key, data);
+    wx.showLoading({ title: '保存中...' });
+
+    // 判断是创建还是更新
+    const apiCall = this.data.projectId
+      ? api.updateProject({ id: this.data.projectId, ...data })
+      : api.createProject(data);
+
+    apiCall
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200) {
+          wx.showToast({
+            title: '保存成功',
+            icon: 'success'
+          });
+
+          // 保存成功后更新projectId
+          if (res.data && res.data.id) {
+            this.setData({ projectId: res.data.id });
+          }
+        } else {
+          wx.showToast({
+            title: res.message || '保存失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('保存项目经历失败:', err);
+        wx.showToast({
+          title: '保存失败，请检查网络',
+          icon: 'none'
+        });
+      });
   },
 
   initGradPicker() {
@@ -341,8 +407,17 @@ Page({
       confirmColor: '#ef4444',
       success: (res) => {
         if (!res.confirm) return;
-        const key = this.getStorageKey();
-        wx.removeStorageSync(key);
+        // 清空表单数据
+        this.setData({
+          projectName: '',
+          roleName: '',
+          startYear: '',
+          startMonth: '',
+          endYear: '',
+          endMonth: '',
+          description: '',
+          descCount: 0
+        });
         wx.navigateBack({
           delta: 1
         });
@@ -379,15 +454,12 @@ Page({
     }
     this.setData({ errors: {} });
     this.saveProject();
-    wx.showToast({
-      title: '保存成功',
-      icon: 'success'
-    });
+    // 注意:保存成功的提示和跳转已经在saveProject方法中处理
     setTimeout(() => {
       wx.navigateBack({
         delta: 1
       });
-    }, 800);
+    }, 1500);
   },
 
   onBack() {

@@ -77,6 +77,16 @@ Page({
   },
 
   /**
+   * 下拉刷新
+   */
+  onPullDownRefresh() {
+    this.loadResumePreview();
+    setTimeout(() => {
+      wx.stopPullDownRefresh();
+    }, 1000);
+  },
+
+  /**
    * 检查是否有内容
    */
   checkHasContent(data) {
@@ -129,9 +139,7 @@ Page({
    * 编辑简历
    */
   onEdit() {
-    wx.navigateTo({
-      url: `/pages/resume-make/resume-make?id=r_${this.data.resumeId}`
-    });
+    wx.navigateBack();
   },
 
   /**

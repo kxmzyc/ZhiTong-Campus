@@ -1,7 +1,10 @@
+const api = require('../../utils/api');
+
 Page({
   data: {
     statusBarHeight: 0,
     resumeId: '',
+    backendResumeId: null,
 
     langSkill: '',
     techSkill: '',
@@ -36,32 +39,85 @@ Page({
     });
   },
 
-  getStorageKey() {
-    return `resume_skills_${this.data.resumeId}`;
-  },
-
   loadSkills() {
-    const key = this.getStorageKey();
-    const data = wx.getStorageSync(key) || {};
-    this.setData({
-      langSkill: data.langSkill || '',
-      techSkill: data.techSkill || '',
-      traitSkill: data.traitSkill || '',
-      hobbySkill: data.hobbySkill || ''
-    });
+    const resumeId = this.data.resumeId;
+    const match = String(resumeId).match(/^r_(\d+)$/);
+    if (!match) {
+      return;
+    }
+
+    const backendId = parseInt(match[1]);
+    this.setData({ backendResumeId: backendId });
+
+    // 从后端API加载简历数据,获取skills字段
+    wx.showLoading({ title: '加载中...' });
+
+    api.getResumeDetail(backendId)
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200 && res.data) {
+          const skills = res.data.skills || '';
+          // 解析技能文本,按行分割
+          const lines = skills.split('\n').filter(line => line.trim());
+
+          this.setData({
+            langSkill: lines[0] || '',
+            techSkill: lines[1] || '',
+            traitSkill: lines[2] || '',
+            hobbySkill: lines[3] || ''
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('加载技能信息失败:', err);
+      });
   },
 
   saveSkills() {
-    const key = this.getStorageKey();
-    const stored = wx.getStorageSync(key) || {};
+    const backendId = this.data.backendResumeId;
+    if (!backendId) {
+      wx.showToast({ title: '简历ID无效', icon: 'none' });
+      return;
+    }
 
-    wx.setStorageSync(key, {
-      ...stored,
-      langSkill: this.data.langSkill,
-      techSkill: this.data.techSkill,
-      traitSkill: this.data.traitSkill,
-      hobbySkill: this.data.hobbySkill
-    });
+    // 构建技能文本
+    const skillsParts = [];
+    if (this.data.langSkill) skillsParts.push(this.data.langSkill);
+    if (this.data.techSkill) skillsParts.push(this.data.techSkill);
+    if (this.data.traitSkill) skillsParts.push(this.data.traitSkill);
+    if (this.data.hobbySkill) skillsParts.push(this.data.hobbySkill);
+
+    const data = {
+      id: backendId,
+      skills: skillsParts.join('\n')
+    };
+
+    wx.showLoading({ title: '保存中...' });
+
+    api.updateResume(data)
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200) {
+          wx.showToast({
+            title: '保存成功',
+            icon: 'success'
+          });
+        } else {
+          wx.showToast({
+            title: res.message || '保存失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('保存技能信息失败:', err);
+        wx.showToast({
+          title: '保存失败，请检查网络',
+          icon: 'none'
+        });
+      });
   },
 
   onLangInput(e) {
@@ -169,15 +225,12 @@ Page({
     }
     this.setData({ errors: {} });
     this.saveSkills();
-    wx.showToast({
-      title: '保存成功',
-      icon: 'success'
-    });
+    // 注意:保存成功的提示已经在saveSkills方法中处理
     setTimeout(() => {
       wx.navigateBack({
         delta: 1
       });
-    }, 800);
+    }, 1500);
   },
 
   onBack() {

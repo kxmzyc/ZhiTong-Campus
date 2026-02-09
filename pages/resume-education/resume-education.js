@@ -1,7 +1,11 @@
+const api = require('../../utils/api');
+
 Page({
   data: {
     statusBarHeight: 0,
     resumeId: '',
+    backendResumeId: null,
+    educationId: null, // 当前编辑的教育经历ID
     pointsBalance: 0,
     school: null,
     degree: null,
@@ -44,60 +48,116 @@ Page({
   },
 
   loadEducation() {
-    const key = this.getEducationStorageKey();
-    const data = wx.getStorageSync(key) || {};
-    const description = data.description || '';
+    const resumeId = this.data.resumeId;
+    const match = String(resumeId).match(/^r_(\d+)$/);
+    if (!match) {
+      return;
+    }
 
-    const parseYearMonth = (s) => {
-      const str = String(s || '');
-      const m = str.match(/^(\d{4})-(\d{2})/);
-      if (!m) return { y: '', m: '' };
-      return { y: m[1], m: m[2] };
-    };
+    const backendId = parseInt(match[1]);
+    this.setData({ backendResumeId: backendId });
 
-    const start = data.startYear
-      ? { y: String(data.startYear), m: String(data.startMonth || '') }
-      : parseYearMonth(data.startDate);
-    const end = data.endYear
-      ? { y: String(data.endYear), m: String(data.endMonth || '') }
-      : parseYearMonth(data.endDate);
+    // 从后端API加载教育经历
+    wx.showLoading({ title: '加载中...' });
 
-    this.setData({
-      school: data.school || null,
-      degree: data.degree || null,
-      majorCategory: data.majorCategory || null,
-      majorName: data.majorName || '',
-      startYear: start.y,
-      startMonth: start.m,
-      endYear: end.y,
-      endMonth: end.m,
-      studyMode: data.studyMode || null,
-      description,
-      schoolName: (data.school && data.school.name) || '',
-      degreeName: (data.degree && data.degree.name) || '',
-      majorCategoryName: (data.majorCategory && data.majorCategory.name) || '',
-      studyModeName: (data.studyMode && data.studyMode.name) || '',
-      descCount: String(description).length
-    });
+    api.getEducationList(backendId)
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200 && res.data && res.data.length > 0) {
+          // 加载第一条教育经历
+          const data = res.data[0];
+          this.setData({ educationId: data.id });
+
+          const parseYearMonth = (s) => {
+            if (!s) return { y: '', m: '' };
+            const d = new Date(s);
+            return {
+              y: String(d.getFullYear()),
+              m: String(d.getMonth() + 1).padStart(2, '0')
+            };
+          };
+
+          const start = parseYearMonth(data.startDate);
+          const end = parseYearMonth(data.endDate);
+
+          this.setData({
+            school: data.school ? { name: data.school } : null,
+            degree: data.education ? { name: data.education } : null,
+            majorName: data.major || '',
+            startYear: start.y,
+            startMonth: start.m,
+            endYear: end.y,
+            endMonth: end.m,
+            description: data.description || '',
+            schoolName: data.school || '',
+            degreeName: data.education || '',
+            descCount: String(data.description || '').length
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('加载教育经历失败:', err);
+      });
   },
 
   saveEducation() {
-    const key = this.getEducationStorageKey();
-    const stored = wx.getStorageSync(key) || {};
+    const backendId = this.data.backendResumeId;
+    if (!backendId) {
+      wx.showToast({ title: '简历ID无效', icon: 'none' });
+      return;
+    }
+
+    // 构建保存数据
     const data = {
-      ...stored,
-      school: this.data.school || stored.school || null,
-      degree: this.data.degree || stored.degree || null,
-      majorCategory: this.data.majorCategory || stored.majorCategory || null,
-      majorName: this.data.majorName,
-      startYear: this.data.startYear,
-      startMonth: this.data.startMonth,
-      endYear: this.data.endYear,
-      endMonth: this.data.endMonth,
-      studyMode: this.data.studyMode || stored.studyMode || null,
-      description: this.data.description
+      resumeId: backendId,
+      school: this.data.schoolName || '',
+      major: this.data.majorName || '',
+      education: this.data.degreeName || '',
+      startDate: this.data.startYear && this.data.startMonth
+        ? `${this.data.startYear}-${this.data.startMonth}-01`
+        : null,
+      endDate: this.data.endYear && this.data.endMonth
+        ? `${this.data.endYear}-${this.data.endMonth}-01`
+        : null,
+      description: this.data.description || ''
     };
-    wx.setStorageSync(key, data);
+
+    wx.showLoading({ title: '保存中...' });
+
+    // 判断是创建还是更新
+    const apiCall = this.data.educationId
+      ? api.updateEducation({ id: this.data.educationId, ...data })
+      : api.createEducation(data);
+
+    apiCall
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200) {
+          wx.showToast({
+            title: '保存成功',
+            icon: 'success'
+          });
+
+          // 保存成功后更新educationId
+          if (res.data && res.data.id) {
+            this.setData({ educationId: res.data.id });
+          }
+        } else {
+          wx.showToast({
+            title: res.message || '保存失败',
+            icon: 'none'
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('保存教育经历失败:', err);
+        wx.showToast({
+          title: '保存失败，请检查网络',
+          icon: 'none'
+        });
+      });
   },
 
   noop() {},

@@ -1,0 +1,124 @@
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="header">
+    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">用户</view>
+    <view class="nav-container">
+      <view class="nav-links">
+        <view class="nav-link" bindtap="goToHome">小助手</view>
+        <view class="nav-link" bindtap="goToCampus">校招</view>
+        <view class="nav-link active">简历</view>
+      </view>
+    </view>
+    <view class="header-right"></view>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 主内容 -->
+  <scroll-view wx:else class="body" scroll-y>
+    <!-- 简历标题和完成度 -->
+    <view class="notice">
+      <view class="notice-top">
+        <view class="resume-name">
+          <text class="resume-name-text">{{name || '我的简历'}}</text>
+        </view>
+        <view class="completion">
+          <text class="completion-label">简历完善度 {{completion}}%</text>
+        </view>
+      </view>
+      <view class="progress">
+        <view class="progress-track">
+          <view class="progress-fill" style="width: {{completion}}%;"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 基本信息卡片 -->
+    <view class="card profile-card ui-pressable" hover-class="ui-press-soft" bindtap="onEditBasicInfo">
+      <view class="profile-left">
+        <view class="profile-meta">
+          <view class="name">{{name || '未填写姓名'}}</view>
+          <view class="sub">
+            <text wx:if="{{school}}">{{school}}</text>
+            <text wx:if="{{education}}"> · {{education}}</text>
+            <text wx:if="{{graduationDate}}"> · {{graduationDate}}</text>
+          </view>
+          <view class="sub" wx:if="{{phone || email}}">
+            <text wx:if="{{phone}}">{{phone}}</text>
+            <text wx:if="{{email}}"> · {{email}}</text>
+          </view>
+        </view>
+      </view>
+      <view class="profile-edit">›</view>
+    </view>
+
+    <!-- 模块列表 -->
+    <view class="section-list">
+      <!-- 教育经历 -->
+      <view class="section-item">
+        <view class="section-title">教育经历</view>
+        <view class="section-badge" wx:if="{{educationList.length > 0}}">{{educationList.length}}</view>
+        <view class="section-action ui-pressable" hover-class="ui-press-icon" bindtap="onEditEducation">
+          {{educationList.length > 0 ? '编辑' : '添加'}}
+        </view>
+      </view>
+
+      <!-- 实习经历 -->
+      <view class="section-item">
+        <view class="section-title">实习经历</view>
+        <view class="section-badge" wx:if="{{internshipList.length > 0}}">{{internshipList.length}}</view>
+        <view class="section-action ui-pressable" hover-class="ui-press-icon" bindtap="onEditInternship">
+          {{internshipList.length > 0 ? '编辑' : '添加'}}
+        </view>
+      </view>
+
+      <!-- 项目经历 -->
+      <view class="section-item">
+        <view class="section-title">项目经历</view>
+        <view class="section-badge" wx:if="{{projectList.length > 0}}">{{projectList.length}}</view>
+        <view class="section-action ui-pressable" hover-class="ui-press-icon" bindtap="onEditProject">
+          {{projectList.length > 0 ? '编辑' : '添加'}}
+        </view>
+      </view>
+
+      <!-- 获奖经历 -->
+      <view class="section-item">
+        <view class="section-title">获奖经历</view>
+        <view class="section-badge" wx:if="{{awardList.length > 0}}">{{awardList.length}}</view>
+        <view class="section-action ui-pressable" hover-class="ui-press-icon" bindtap="onEditAward">
+          {{awardList.length > 0 ? '编辑' : '添加'}}
+        </view>
+      </view>
+
+      <!-- 技能特长 -->
+      <view class="section-item">
+        <view class="section-title">技能特长</view>
+        <view class="section-action ui-pressable" hover-class="ui-press-icon" bindtap="onEditSkills">
+          {{skills ? '编辑' : '添加'}}
+        </view>
+      </view>
+
+      <!-- 自我评价 -->
+      <view class="section-item">
+        <view class="section-title">自我评价</view>
+        <view class="section-action ui-pressable" hover-class="ui-press-icon" bindtap="onEditSelfEvaluation">
+          {{selfEvaluation ? '编辑' : '添加'}}
+        </view>
+      </view>
+    </view>
+
+    <view class="safe-space"></view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="footer">
+    <view class="footer-inner">
+      <view class="btn btn-secondary ui-pressable" hover-class="ui-press-soft" bindtap="onBack">返回</view>
+      <view class="btn btn-primary ui-pressable" hover-class="ui-press" bindtap="onPreview">预览简历</view>
+    </view>
+  </view>
+</view>
