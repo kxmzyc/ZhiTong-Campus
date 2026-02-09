@@ -1,4 +1,6 @@
 // pages/campus/campus.js
+const api = require('../../utils/api');
+
 Page({
 
   /**
@@ -227,14 +229,65 @@ Page({
     this.syncSelectedCities();
     this.syncSelectedIndustries();
     this.syncSelectedPositions();
-    this.refreshCompanies();
+    this.loadJobsFromBackend();
   },
 
   onShow() {
     this.syncSelectedCities();
     this.syncSelectedIndustries();
     this.syncSelectedPositions();
-    this.refreshCompanies();
+    this.loadJobsFromBackend();
+  },
+
+  /**
+   * 从后端加载职位数据
+   */
+  loadJobsFromBackend() {
+    wx.showLoading({ title: '加载中...' });
+
+    api.getJobList()
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200 && res.data) {
+          // 将后端职位数据转换为前端格式
+          const jobs = res.data.map(job => ({
+            id: job.id,
+            name: job.company,
+            logo: '/images/company1.jpg', // 默认logo
+            tags: [job.industry, job.jobType, job.city].filter(Boolean),
+            industry: job.industry,
+            position: job.title,
+            city: job.city,
+            description: `${job.title} | ${job.salaryRange} | ${job.educationRequired}`,
+            jobCount: 1,
+            jobData: job // 保存完整的职位数据
+          }));
+
+          // 按公司分组
+          const companiesByTab = {
+            0: jobs, // 热招岗位
+            1: [], // 校招简章（暂时为空）
+            2: []  // 网申简章（暂时为空）
+          };
+
+          this.setData({
+            companiesByTab: companiesByTab
+          }, () => {
+            this.refreshCompanies();
+          });
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('加载职位失败:', err);
+        wx.showToast({
+          title: '加载失败，请检查后端服务',
+          icon: 'none',
+          duration: 2000
+        });
+        // 失败时使用原有的模拟数据
+        this.refreshCompanies();
+      });
   },
 
   updateFilterActiveStates(extra = {}) {

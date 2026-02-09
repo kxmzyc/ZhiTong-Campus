@@ -40,8 +40,8 @@
 
       <view class="resume-list">
         <block wx:for="{{displayResumes}}" wx:key="id">
-          <view class="resume-item" bindtap="onResumeTap" bindlongpress="onResumeLongPress" data-index="{{index}}">
-            <view class="resume-item-top">
+          <view class="resume-item">
+            <view class="resume-item-top" bindtap="onResumeTap" bindlongpress="onResumeLongPress" data-index="{{index}}">
               <view class="resume-item-title">{{item.name}} ></view>
             </view>
 
@@ -52,6 +52,13 @@
               <view class="meta-row">
                 <view class="meta-text">简历完成度：{{item.completion}}%</view>
               </view>
+            </view>
+
+            <!-- 操作按钮 -->
+            <view class="resume-actions">
+              <button class="action-btn preview-btn" bindtap="onPreviewResume" data-index="{{index}}">预览</button>
+              <button class="action-btn edit-btn" bindtap="onResumeTap" data-index="{{index}}">编辑</button>
+              <button class="action-btn delete-btn" bindtap="onDeleteResume" data-index="{{index}}">删除</button>
             </view>
           </view>
         </block>

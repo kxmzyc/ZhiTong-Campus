@@ -323,9 +323,30 @@ Page({
   },
 
   onPreview() {
-    wx.showToast({
-      title: '预览功能稍后制作',
-      icon: 'none'
+    // 从 resumeId (格式: r_1) 中提取 backendId (格式: 1)
+    const resumeId = this.data.resumeId;
+    if (!resumeId) {
+      wx.showToast({
+        title: '简历ID不存在',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 提取数字部分作为 backendId
+    const backendId = resumeId.replace(/^r_/, '');
+
+    if (!backendId) {
+      wx.showToast({
+        title: '无效的简历ID',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 跳转到简历预览页面
+    wx.navigateTo({
+      url: `/pages/resume-preview/resume-preview?id=${backendId}`
     });
   },
 

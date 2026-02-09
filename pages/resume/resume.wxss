@@ -224,6 +224,39 @@
   color: var(--muted);
 }
 
+/* 简历操作按钮 */
+.resume-actions {
+  margin-top: 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.action-btn {
+  flex: 1;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  padding: 0;
+}
+
+.preview-btn {
+  background-color: #8b5cf6;
+  color: #ffffff;
+}
+
+.edit-btn {
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.delete-btn {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
 .add-resume {
   height: 56px;
   border-radius: var(--radius-lg);
