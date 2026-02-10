@@ -30,3 +30,8 @@ mybatis-plus:
       logic-delete-field: deleted
       logic-delete-value: 1
       logic-not-delete-value: 0
+
+# 微信小程序配置
+wechat:
+  appid: wxa1f6632efb5a19e5
+  secret: 78433b13eeeb5c04add01850248be9ba

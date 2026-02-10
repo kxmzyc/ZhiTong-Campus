@@ -1,4 +1,7 @@
 // pages/profile/profile.js
+const app = getApp();
+const loginGuard = require('../../utils/loginGuard');
+
 Page({
 
   /**
@@ -7,11 +10,12 @@ Page({
   data: {
     statusBarHeight: 0,
     from: '',
+    isLogin: false,
     user: {
-      name: '管理员',
-      school: '江夏学院',
-      degree: '本科',
-      gradYear: '2023',
+      name: '未登录',
+      school: '请先登录',
+      degree: '',
+      gradYear: '',
       gradDate: '----'
     },
     avatarPath: ''
@@ -43,24 +47,67 @@ Page({
       title: '我的'
     });
 
-    const basic = wx.getStorageSync('profile_basic_info') || {};
-    const defaults = this.data.user || {};
-    const name = basic.name || defaults.name;
-    const school = basic.school || defaults.school;
-    const degree = basic.degree || defaults.degree;
-    const gradYear = basic.gradYear || defaults.gradYear;
-    const gradDate = basic.gradYear && basic.gradMonth ? `${basic.gradYear}-${basic.gradMonth}` : (basic.gradDate || '----');
+    // 检查登录状态
+    this.checkLoginStatus();
+  },
 
-    this.setData({
-      user: {
-        name,
-        school,
-        degree,
-        gradYear,
-        gradDate
-      },
-      avatarPath: basic.avatarPath || ''
-    });
+  /**
+   * 检查登录状态
+   */
+  checkLoginStatus() {
+    const isLogin = app.checkLogin();
+    this.setData({ isLogin });
+
+    if (isLogin) {
+      // 已登录，加载用户信息
+      this.loadUserInfo();
+    } else {
+      // 未登录，显示默认信息
+      this.setData({
+        user: {
+          name: '未登录',
+          school: '请先登录',
+          degree: '',
+          gradYear: '',
+          gradDate: '----'
+        },
+        avatarPath: ''
+      });
+    }
+  },
+
+  /**
+   * 加载用户信息
+   */
+  loadUserInfo() {
+    const userInfo = app.getUserInfo();
+
+    if (userInfo) {
+      // 从后端获取的用户信息
+      this.setData({
+        user: {
+          name: userInfo.nickname || '微信用户',
+          school: userInfo.school || '未设置',
+          degree: userInfo.education || '',
+          gradYear: userInfo.graduationYear || '',
+          gradDate: userInfo.graduationDate || '----'
+        },
+        avatarPath: userInfo.avatar || ''
+      });
+    } else {
+      // 兼容旧的本地存储方式
+      const basic = wx.getStorageSync('profile_basic_info') || {};
+      this.setData({
+        user: {
+          name: basic.name || '未设置',
+          school: basic.school || '未设置',
+          degree: basic.degree || '',
+          gradYear: basic.gradYear || '',
+          gradDate: basic.gradYear && basic.gradMonth ? `${basic.gradYear}-${basic.gradMonth}` : (basic.gradDate || '----')
+        },
+        avatarPath: basic.avatarPath || ''
+      });
+    }
   },
 
   onBack() {
@@ -78,48 +125,68 @@ Page({
     });
   },
 
+  /**
+   * 点击头像或昵称区域
+   */
+  onUserInfoTap() {
+    if (!this.data.isLogin) {
+      // 未登录，跳转到登录页
+      wx.navigateTo({
+        url: '/pages/login/login'
+      });
+    } else {
+      // 已登录，跳转到编辑页面
+      this.onEditProfile();
+    }
+  },
+
   onEditProfile() {
-    wx.navigateTo({
-      url: '/pages/profile-edit/profile-edit'
+    // 检查登录
+    loginGuard.checkLogin(() => {
+      wx.navigateTo({
+        url: '/pages/profile-edit/profile-edit'
+      });
     });
   },
 
   goApplied() {
-    wx.navigateTo({
-      url: '/pages/profile-applied/profile-applied'
+    // 检查登录
+    loginGuard.checkLogin(() => {
+      wx.navigateTo({
+        url: '/pages/profile-applied/profile-applied'
+      });
     });
   },
 
   goPending() {
-    wx.navigateTo({
-      url: '/pages/profile-pending/profile-pending'
+    // 检查登录
+    loginGuard.checkLogin(() => {
+      wx.navigateTo({
+        url: '/pages/profile-pending/profile-pending'
+      });
     });
   },
 
   goFavorite() {
-    wx.navigateTo({
-      url: '/pages/profile-favorite/profile-favorite'
+    // 检查登录
+    loginGuard.checkLogin(() => {
+      wx.navigateTo({
+        url: '/pages/profile-favorite/profile-favorite'
+      });
     });
   },
 
   onLogout() {
-    wx.showModal({
-      title: '退出登录',
-      content: '确定要退出登录吗？',
-      success: (res) => {
-        if (!res.confirm) return;
-        wx.showToast({
-          title: '已退出',
-          icon: 'success',
-          duration: 400
-        });
-        setTimeout(() => {
-          wx.reLaunch({
-            url: '/pages/index/index'
-          });
-        }, 150);
-      }
-    });
+    if (!this.data.isLogin) {
+      wx.showToast({
+        title: '您还未登录',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 使用登录守卫的退出登录方法
+    loginGuard.logout();
   },
 
   /**
