@@ -10,12 +10,10 @@ Page({
     userId: 1, // 临时使用固定用户ID，后续需要从登录信息获取
     resumes: [],
     displayResumes: [],
-    canCreateMore: false,
-    lastPickedFile: null
-  },
-
-  getResumeStorageKey() {
-    return 'resume_list_v1';
+    canCreateMore: true, // 默认允许创建
+    lastPickedFile: null,
+    loading: false,
+    isEmpty: false // 是否为空列表
   },
 
   formatDate(date) {
@@ -45,76 +43,27 @@ Page({
     return `我的简历${i}`;
   },
 
-  createDefaultResume() {
-    const now = new Date();
-    return {
-      id: `r_${Date.now()}`,
-      name: this.getNextDefaultName(this.data && this.data.resumes),
-      updatedAt: this.formatDate(now),
-      completion: 0
-    };
-  },
-
-  normalizeResumes(resumes) {
-    const list = Array.isArray(resumes) ? resumes.slice() : [];
-    const existingUsed = new Set();
-    list.forEach((r) => {
-      const n = this.parseDefaultNameIndex(r && r.name);
-      if (n) existingUsed.add(n);
-    });
-
-    const getNextName = () => {
-      let i = 1;
-      while (existingUsed.has(i)) i += 1;
-      existingUsed.add(i);
-      return `我的简历${i}`;
-    };
-
-    return list.map((r) => {
-      if (!r) return r;
-      if (!r.name) {
-        return {
-          ...r,
-          name: getNextName()
-        };
-      }
-      return r;
-    });
-  },
-
-  ensureAtLeastOneResume(resumes) {
-    if (!Array.isArray(resumes) || resumes.length === 0) {
-      const now = new Date();
-      return [{
-        id: `r_${Date.now()}`,
-        name: '我的简历1',
-        updatedAt: this.formatDate(now),
-        completion: 0
-      }];
+  navigateToResumeMakeById(backendId) {
+    if (!backendId) {
+      wx.showToast({
+        title: '简历ID无效',
+        icon: 'none'
+      });
+      return;
     }
-    return resumes;
-  },
-
-  computeViewState(resumes) {
-    const safeResumes = this.normalizeResumes(this.ensureAtLeastOneResume(resumes));
-    const first = safeResumes[0];
-    const canCreateMore = !!first && Number(first.completion) >= 100;
-    return {
-      resumes: safeResumes,
-      displayResumes: safeResumes,
-      canCreateMore
-    };
-  },
-
-  navigateToResumeMakeById(id) {
-    if (!id) return;
     wx.navigateTo({
-      url: `/pages/resume-make/resume-make?id=${encodeURIComponent(id)}`
+      url: `/pages/resume-make/resume-make?id=${backendId}`
     });
   },
 
   navigateToResumePreview(backendId) {
-    if (!backendId) return;
+    if (!backendId) {
+      wx.showToast({
+        title: '简历ID无效',
+        icon: 'none'
+      });
+      return;
+    }
     wx.navigateTo({
       url: `/pages/resume-preview/resume-preview?id=${backendId}`
     });
@@ -122,17 +71,21 @@ Page({
 
   navigateToResumeMakeByIndex(index) {
     const resumes = this.data.resumes || [];
-    const safeResumes = this.ensureAtLeastOneResume(resumes);
-    const target = safeResumes[index];
-    if (!target) return;
-    this.navigateToResumeMakeById(target.id);
+    const target = resumes[index];
+    if (!target || !target.backendId) {
+      wx.showToast({
+        title: '简历数据异常',
+        icon: 'none'
+      });
+      return;
+    }
+    this.navigateToResumeMakeById(target.backendId);
   },
 
   onPreviewResume(e) {
     const index = Number(e.currentTarget.dataset.index);
     const resumes = this.data.resumes || [];
-    const safeResumes = this.ensureAtLeastOneResume(resumes);
-    const target = safeResumes[index];
+    const target = resumes[index];
 
     if (!target || !target.backendId) {
       wx.showToast({
@@ -145,50 +98,61 @@ Page({
     this.navigateToResumePreview(target.backendId);
   },
 
-  saveResumes(resumes) {
-    wx.setStorageSync(this.getResumeStorageKey(), resumes);
-  },
-
   loadResumes() {
-    // 从后端加载简历列表
+    // 从后端加载简历列表（后端主导模式）
+    if (this.data.loading) return;
+
+    this.setData({ loading: true });
     wx.showLoading({ title: '加载中...' });
 
     api.getResumeList(this.data.userId)
       .then(res => {
         wx.hideLoading();
-        if (res.code === 200 && res.data) {
+        this.setData({ loading: false });
+
+        if (res.code === 200) {
+          const backendResumes = res.data || [];
+
           // 转换后端数据格式为前端格式
-          const resumes = res.data.map(item => ({
-            id: `r_${item.id}`,
-            backendId: item.id, // 保存后端ID
+          const resumes = backendResumes.map(item => ({
+            backendId: item.id, // 后端真实ID（必须）
             name: item.name || '我的简历',
             updatedAt: this.formatDate(new Date(item.updatedAt || item.createdAt)),
             completion: this.calculateCompletion(item)
           }));
 
-          const viewState = this.computeViewState(resumes);
-          this.setData(viewState);
-
-          // 同时保存到本地存储作为备份
-          this.saveResumes(viewState.resumes);
+          this.setData({
+            resumes: resumes,
+            displayResumes: resumes,
+            isEmpty: resumes.length === 0,
+            canCreateMore: true // 始终允许创建
+          });
         } else {
-          // 如果后端没有数据，使用本地存储
-          this.loadResumesFromLocal();
+          wx.showToast({
+            title: res.message || '加载失败',
+            icon: 'none'
+          });
+          this.setData({
+            resumes: [],
+            displayResumes: [],
+            isEmpty: true
+          });
         }
       })
       .catch(err => {
         wx.hideLoading();
+        this.setData({ loading: false });
         console.error('加载简历失败:', err);
-        // 失败时使用本地存储
-        this.loadResumesFromLocal();
+        wx.showToast({
+          title: '加载失败，请检查网络',
+          icon: 'none'
+        });
+        this.setData({
+          resumes: [],
+          displayResumes: [],
+          isEmpty: true
+        });
       });
-  },
-
-  loadResumesFromLocal() {
-    const resumes = wx.getStorageSync(this.getResumeStorageKey());
-    const viewState = this.computeViewState(resumes);
-    this.setData(viewState);
-    this.saveResumes(viewState.resumes);
   },
 
   calculateCompletion(resume) {
@@ -225,7 +189,13 @@ Page({
   },
 
   onMakeResume() {
-    this.navigateToResumeMakeByIndex(0);
+    // 如果有简历，编辑第一份；否则创建新简历
+    const resumes = this.data.resumes || [];
+    if (resumes.length > 0) {
+      this.navigateToResumeMakeByIndex(0);
+    } else {
+      this.onAddResume();
+    }
   },
 
   pickFileWithConfirm(sourceLabel) {
@@ -295,12 +265,17 @@ Page({
 
     const index = Number(e.currentTarget.dataset.index);
     const resumes = this.data.resumes || [];
-    const safeResumes = this.ensureAtLeastOneResume(resumes);
-    const target = safeResumes[index];
+    const target = resumes[index];
 
-    if (!target) return;
+    if (!target || !target.backendId) {
+      wx.showToast({
+        title: '简历数据异常',
+        icon: 'none'
+      });
+      return;
+    }
 
-    this.navigateToResumeEdit(index);
+    this.navigateToResumeMakeByIndex(index);
   },
 
   onResumeLongPress(e) {
@@ -310,10 +285,12 @@ Page({
   },
 
   deleteResumeByIndex(index) {
-    const resumes = this.ensureAtLeastOneResume(this.data.resumes || []);
-    if (resumes.length <= 1) {
+    const resumes = this.data.resumes || [];
+    const targetResume = resumes[index];
+
+    if (!targetResume) {
       wx.showToast({
-        title: '至少保留一份简历',
+        title: '简历不存在',
         icon: 'none'
       });
       return;
@@ -327,40 +304,43 @@ Page({
       success: (res) => {
         if (!res.confirm) return;
 
-        const targetResume = resumes[index];
         const backendId = targetResume.backendId;
 
-        // 如果有后端ID，调用后端删除接口
-        if (backendId) {
-          wx.showLoading({ title: '删除中...' });
-          api.deleteResume(backendId)
-            .then(() => {
-              wx.hideLoading();
+        // 必须有后端ID才能删除
+        if (!backendId) {
+          wx.showToast({
+            title: '数据异常，无法删除',
+            icon: 'none'
+          });
+          return;
+        }
+
+        wx.showLoading({ title: '删除中...' });
+        api.deleteResume(backendId)
+          .then((deleteRes) => {
+            wx.hideLoading();
+            if (deleteRes.code === 200) {
               wx.showToast({
                 title: '删除成功',
                 icon: 'success'
               });
-              // 删除成功后更新列表
-              const next = resumes.filter((_, i) => i !== index);
-              const viewState = this.computeViewState(next);
-              this.setData(viewState);
-              this.saveResumes(viewState.resumes);
-            })
-            .catch(err => {
-              wx.hideLoading();
-              console.error('删除失败:', err);
+              // 重新加载列表
+              this.loadResumes();
+            } else {
               wx.showToast({
-                title: '删除失败',
+                title: deleteRes.message || '删除失败',
                 icon: 'none'
               });
+            }
+          })
+          .catch(err => {
+            wx.hideLoading();
+            console.error('删除失败:', err);
+            wx.showToast({
+              title: '删除失败，请检查网络',
+              icon: 'none'
             });
-        } else {
-          // 没有后端ID，只删除本地数据
-          const next = resumes.filter((_, i) => i !== index);
-          const viewState = this.computeViewState(next);
-          this.setData(viewState);
-          this.saveResumes(viewState.resumes);
-        }
+          });
       }
     });
   },
@@ -371,8 +351,7 @@ Page({
   },
 
   onAddResume() {
-    const resumes = this.ensureAtLeastOneResume(this.data.resumes || []);
-    const now = new Date();
+    const resumes = this.data.resumes || [];
     const nextName = this.getNextDefaultName(resumes);
 
     // 创建新简历数据
@@ -383,32 +362,25 @@ Page({
 
     wx.showLoading({ title: '创建中...' });
 
-    // 调用后端接口创建简历
+    // 调用后端接口创建简历（必须成功）
     api.createResume(newResumeData)
       .then(res => {
         wx.hideLoading();
-        if (res.code === 200 && res.data) {
+        if (res.code === 200 && res.data && res.data.id) {
           wx.showToast({
             title: '创建成功',
             icon: 'success'
           });
 
-          // 添加到列表
-          const newResume = {
-            id: `r_${res.data.id}`,
-            backendId: res.data.id,
-            name: res.data.name,
-            updatedAt: this.formatDate(now),
-            completion: 0
-          };
-
-          const next = resumes.concat([newResume]);
-          const viewState = this.computeViewState(next);
-          this.setData(viewState);
-          this.saveResumes(viewState.resumes);
-
-          // 跳转到编辑页面
-          this.navigateToResumeMakeById(newResume.id);
+          // 跳转到编辑页面（使用后端返回的真实ID）
+          setTimeout(() => {
+            this.navigateToResumeMakeById(res.data.id);
+          }, 500);
+        } else {
+          wx.showToast({
+            title: res.message || '创建失败',
+            icon: 'none'
+          });
         }
       })
       .catch(err => {
@@ -418,19 +390,6 @@ Page({
           title: '创建失败，请检查网络',
           icon: 'none'
         });
-
-        // 失败时创建本地简历
-        const localResume = {
-          id: `r_${Date.now()}`,
-          name: nextName,
-          updatedAt: this.formatDate(now),
-          completion: 0
-        };
-        const next = resumes.concat([localResume]);
-        const viewState = this.computeViewState(next);
-        this.setData(viewState);
-        this.saveResumes(viewState.resumes);
-        this.navigateToResumeMakeById(localResume.id);
       });
   },
 

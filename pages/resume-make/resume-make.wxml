@@ -39,10 +39,12 @@
       <view class="profile-left">
         <view class="avatar">
           <image wx:if="{{avatarPath}}" class="avatar-img" src="{{avatarPath}}" mode="aspectFill" />
+          <view wx:else class="avatar-placeholder">头像</view>
         </view>
         <view class="profile-meta">
-          <view class="name">{{user.name}}</view>
-          <view class="sub">{{user.school}}·{{user.degree}}·{{user.gradYear}}届</view>
+          <view class="name">{{user.name || '点击完善基本信息'}}</view>
+          <view class="sub" wx:if="{{user.school || user.degree || user.gradYear}}">{{user.school}}·{{user.degree}}·{{user.gradYear}}届</view>
+          <view class="sub placeholder" wx:else>填写学校、学历等信息</view>
         </view>
       </view>
       <view class="profile-edit">›</view>

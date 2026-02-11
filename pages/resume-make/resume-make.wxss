@@ -202,6 +202,9 @@
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.08);
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .avatar-img {
@@ -209,14 +212,23 @@
   height: 100%;
 }
 
+.avatar-placeholder {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
 .profile-meta {
   min-width: 0;
+  flex: 1;
 }
 
 .profile-meta .name {
   font-size: 18px;
   font-weight: 900;
   color: var(--text);
+  min-height: 24px;
+  line-height: 24px;
 }
 
 .profile-meta .sub {
@@ -226,6 +238,13 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-height: 18px;
+  line-height: 18px;
+}
+
+.profile-meta .sub.placeholder {
+  color: var(--muted-2);
+  opacity: 0.7;
 }
 
 .profile-edit {

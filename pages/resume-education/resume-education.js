@@ -3,8 +3,7 @@ const api = require('../../utils/api');
 Page({
   data: {
     statusBarHeight: 0,
-    resumeId: '',
-    backendResumeId: null,
+    resumeId: null, // 后端简历ID（数据库真实ID）
     educationId: null, // 当前编辑的教育经历ID
     pointsBalance: 0,
     school: null,
@@ -49,68 +48,74 @@ Page({
 
   loadEducation() {
     const resumeId = this.data.resumeId;
-    const match = String(resumeId).match(/^r_(\d+)$/);
-    if (!match) {
+    if (!resumeId) {
+      wx.showToast({
+        title: '简历ID无效',
+        icon: 'none'
+      });
       return;
     }
 
-    const backendId = parseInt(match[1]);
-    this.setData({ backendResumeId: backendId });
+    // 如果有 educationId，说明是编辑模式，加载指定的教育经历
+    if (this.data.educationId) {
+      wx.showLoading({ title: '加载中...' });
 
-    // 从后端API加载教育经历
-    wx.showLoading({ title: '加载中...' });
+      api.getEducationList(resumeId)
+        .then(res => {
+          wx.hideLoading();
+          if (res.code === 200 && res.data && res.data.length > 0) {
+            // 查找指定ID的教育经历
+            const data = res.data.find(item => item.id === this.data.educationId);
+            if (!data) {
+              wx.showToast({ title: '教育经历不存在', icon: 'none' });
+              return;
+            }
 
-    api.getEducationList(backendId)
-      .then(res => {
-        wx.hideLoading();
-        if (res.code === 200 && res.data && res.data.length > 0) {
-          // 加载第一条教育经历
-          const data = res.data[0];
-          this.setData({ educationId: data.id });
-
-          const parseYearMonth = (s) => {
-            if (!s) return { y: '', m: '' };
-            const d = new Date(s);
-            return {
-              y: String(d.getFullYear()),
-              m: String(d.getMonth() + 1).padStart(2, '0')
+            const parseYearMonth = (s) => {
+              if (!s) return { y: '', m: '' };
+              const d = new Date(s);
+              return {
+                y: String(d.getFullYear()),
+                m: String(d.getMonth() + 1).padStart(2, '0')
+              };
             };
-          };
 
-          const start = parseYearMonth(data.startDate);
-          const end = parseYearMonth(data.endDate);
+            const start = parseYearMonth(data.startDate);
+            const end = parseYearMonth(data.endDate);
 
-          this.setData({
-            school: data.school ? { name: data.school } : null,
-            degree: data.education ? { name: data.education } : null,
-            majorName: data.major || '',
-            startYear: start.y,
-            startMonth: start.m,
-            endYear: end.y,
-            endMonth: end.m,
-            description: data.description || '',
-            schoolName: data.school || '',
-            degreeName: data.education || '',
-            descCount: String(data.description || '').length
-          });
-        }
-      })
-      .catch(err => {
-        wx.hideLoading();
-        console.error('加载教育经历失败:', err);
-      });
+            this.setData({
+              school: data.school ? { name: data.school } : null,
+              degree: data.education ? { name: data.education } : null,
+              majorName: data.major || '',
+              startYear: start.y,
+              startMonth: start.m,
+              endYear: end.y,
+              endMonth: end.m,
+              description: data.description || '',
+              schoolName: data.school || '',
+              degreeName: data.education || '',
+              descCount: String(data.description || '').length
+            });
+          }
+        })
+        .catch(err => {
+          wx.hideLoading();
+          console.error('加载教育经历失败:', err);
+          wx.showToast({ title: '加载失败，请检查网络', icon: 'none' });
+        });
+    }
   },
 
   saveEducation() {
-    const backendId = this.data.backendResumeId;
-    if (!backendId) {
+    const resumeId = this.data.resumeId;
+    if (!resumeId) {
       wx.showToast({ title: '简历ID无效', icon: 'none' });
       return;
     }
 
     // 构建保存数据
     const data = {
-      resumeId: backendId,
+      resumeId: resumeId,
       school: this.data.schoolName || '',
       major: this.data.majorName || '',
       education: this.data.degreeName || '',
@@ -143,6 +148,13 @@ Page({
           if (res.data && res.data.id) {
             this.setData({ educationId: res.data.id });
           }
+
+          // 延迟返回上一页
+          setTimeout(() => {
+            wx.navigateBack({
+              delta: 1
+            });
+          }, 800);
         } else {
           wx.showToast({
             title: res.message || '保存失败',
@@ -583,7 +595,6 @@ Page({
 
     if (!String(this.data.schoolName || '').trim()) errors.schoolName = '请选择学校';
     if (!String(this.data.degreeName || '').trim()) errors.degreeName = '请选择学历';
-    if (!String(this.data.majorCategoryName || '').trim()) errors.majorCategoryName = '请选择专业类别';
     if (!String(this.data.majorName || '').trim()) errors.majorName = '请输入专业名称';
 
     if (!String(this.data.startYear || '').trim()) errors.startDate = '请选择入学时间';
@@ -597,8 +608,6 @@ Page({
       }
     }
 
-    if (!String(this.data.studyModeName || '').trim()) errors.studyModeName = '请选择学习方式';
-    if (!String(this.data.description || '').trim()) errors.description = '请输入专业描述';
     return errors;
   },
 
@@ -668,19 +677,16 @@ Page({
     const errors = this.validateForm();
     if (Object.keys(errors).length) {
       this.setData({ errors });
+      wx.showToast({
+        title: '请完善必填信息',
+        icon: 'none'
+      });
       return;
     }
     this.setData({ errors: {} });
+
+    // 调用保存方法，等待完成后再返回
     this.saveEducation();
-    wx.showToast({
-      title: '保存成功',
-      icon: 'success'
-    });
-    setTimeout(() => {
-      wx.navigateBack({
-        delta: 1
-      });
-    }, 800);
   },
 
   onBack() {
@@ -691,21 +697,46 @@ Page({
 
   onLoad(options) {
     const sys = wx.getSystemInfoSync();
-    const resumeId = (options && options.id) || '';
+    const resumeId = options && options.id ? parseInt(options.id) : null;
+    const educationId = (options && options.educationId) ? parseInt(options.educationId) : null;
+
+    if (!resumeId) {
+      wx.showToast({
+        title: '简历ID无效',
+        icon: 'none',
+        duration: 2000
+      });
+      setTimeout(() => {
+        wx.navigateBack({
+          delta: 1,
+          fail: () => {
+            wx.reLaunch({
+              url: '/pages/resume/resume'
+            });
+          }
+        });
+      }, 2000);
+      return;
+    }
+
     this.setData({
       statusBarHeight: sys.statusBarHeight || 0,
-      resumeId
+      resumeId,
+      educationId
     });
 
     this.initGradPicker();
     this.initSchools();
     this.initMajorData();
     this.loadPointsBalance();
-    this.loadEducation();
+
+    // 如果有 educationId，加载教育经历数据
+    if (educationId) {
+      this.loadEducation();
+    }
   },
 
   onShow() {
     this.loadPointsBalance();
-    this.loadEducation();
   }
 });

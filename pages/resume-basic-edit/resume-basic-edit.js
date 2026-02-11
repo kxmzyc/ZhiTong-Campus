@@ -36,7 +36,20 @@ Page({
    * 加载数据
    */
   loadData() {
-    if (!this.data.resumeId) return;
+    if (!this.data.resumeId) {
+      // 如果没有 resumeId，尝试使用登录信息作为默认值
+      const app = getApp();
+      const loginUserInfo = app.getUserInfo();
+      if (loginUserInfo) {
+        this.setData({
+          form: {
+            ...this.data.form,
+            name: loginUserInfo.nickname || ''
+          }
+        });
+      }
+      return;
+    }
 
     wx.showLoading({ title: '加载中...' });
 
@@ -60,11 +73,34 @@ Page({
               expectedSalary: res.data.expectedSalary || ''
             }
           });
+        } else {
+          // 如果后端没有数据，使用登录信息作为默认值
+          const app = getApp();
+          const loginUserInfo = app.getUserInfo();
+          if (loginUserInfo) {
+            this.setData({
+              form: {
+                ...this.data.form,
+                name: loginUserInfo.nickname || ''
+              }
+            });
+          }
         }
       })
       .catch(err => {
         wx.hideLoading();
         console.error('加载失败:', err);
+        // 失败时也尝试使用登录信息
+        const app = getApp();
+        const loginUserInfo = app.getUserInfo();
+        if (loginUserInfo) {
+          this.setData({
+            form: {
+              ...this.data.form,
+              name: loginUserInfo.nickname || ''
+            }
+          });
+        }
       });
   },
 
