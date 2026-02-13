@@ -1,0 +1,458 @@
+/* pages/company-detail/company-detail.wxss */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+/* 自定义导航栏 */
+.custom-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: #fff;
+  border-bottom: 2rpx solid #e5e5e5;
+  flex-shrink: 0;
+}
+
+.navbar-content {
+  height: 88rpx;
+  padding-top: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 32rpx;
+  padding-right: 32rpx;
+}
+
+/* 页面内容区 */
+.page-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding-top: 176rpx;
+}
+
+.navbar-left,
+.navbar-right {
+  width: 88rpx;
+  height: 88rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-icon {
+  width: 40rpx;
+  height: 40rpx;
+  position: relative;
+}
+
+.back-icon::before {
+  content: '';
+  position: absolute;
+  left: 16rpx;
+  top: 50%;
+  transform: translateY(-50%) rotate(-45deg);
+  width: 20rpx;
+  height: 20rpx;
+  border-left: 4rpx solid #333;
+  border-bottom: 4rpx solid #333;
+}
+
+.navbar-title {
+  flex: 1;
+  text-align: center;
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.share-icon {
+  width: 40rpx;
+  height: 40rpx;
+  position: relative;
+}
+
+.share-icon::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 16rpx;
+  transform: translateX(-50%);
+  width: 24rpx;
+  height: 24rpx;
+  border: 4rpx solid #333;
+  border-radius: 50%;
+}
+
+.share-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 8rpx;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8rpx solid transparent;
+  border-right: 8rpx solid transparent;
+  border-bottom: 12rpx solid #333;
+}
+
+/* 公司头部信息 */
+.company-header {
+  background: #fff;
+  padding: 24rpx 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  flex-shrink: 0;
+}
+
+.company-main-info {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20rpx;
+}
+
+.company-logo {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 12rpx;
+  background: #f5f5f5;
+  flex-shrink: 0;
+  margin-right: 24rpx;
+}
+
+.company-basic {
+  flex: 1;
+  min-width: 0;
+}
+
+.company-name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8rpx;
+  line-height: 1.3;
+}
+
+.company-meta {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.meta-item {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.meta-divider {
+  margin: 0 12rpx;
+  color: #ddd;
+}
+
+.company-status {
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  background: #e8f5e9;
+  color: #4caf50;
+  font-size: 22rpx;
+  border-radius: 8rpx;
+}
+
+.follow-btn {
+  padding: 12rpx 24rpx;
+  background: #1890ff;
+  color: #fff;
+  border-radius: 40rpx;
+  font-size: 26rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.follow-btn.followed {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.follow-icon {
+  font-size: 28rpx;
+  line-height: 1;
+}
+
+.follow-text {
+  font-size: 26rpx;
+}
+
+.job-count-info {
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.job-count-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.job-count-number {
+  font-size: 26rpx;
+  color: #1890ff;
+  font-weight: 600;
+}
+
+/* Tab导航 */
+.tab-nav {
+  background: #fff;
+  display: flex;
+  border-bottom: 1rpx solid #e5e5e5;
+  flex-shrink: 0;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  position: relative;
+}
+
+.tab-text {
+  font-size: 28rpx;
+  color: #666;
+}
+
+.tab-item.active .tab-text {
+  color: #1890ff;
+  font-weight: 600;
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48rpx;
+  height: 6rpx;
+  background: #1890ff;
+  border-radius: 3rpx;
+}
+
+/* 内容区域 */
+.content-area {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.tab-content {
+  padding: 0;
+}
+
+/* 区块样式 */
+.section {
+  background: #fff;
+  padding: 32rpx;
+  margin-bottom: 2rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 24rpx;
+}
+
+/* 公司介绍 */
+.company-intro {
+  max-height: 120rpx;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.company-intro.expanded {
+  max-height: 2000rpx;
+}
+
+.intro-text {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.expand-btn {
+  margin-top: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  color: #1890ff;
+  font-size: 26rpx;
+}
+
+.expand-icon {
+  width: 24rpx;
+  height: 24rpx;
+  position: relative;
+}
+
+.expand-icon.down::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 12rpx;
+  height: 12rpx;
+  border-right: 4rpx solid #1890ff;
+  border-bottom: 4rpx solid #1890ff;
+}
+
+.expand-icon.up::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(-135deg);
+  width: 12rpx;
+  height: 12rpx;
+  border-right: 4rpx solid #1890ff;
+  border-bottom: 4rpx solid #1890ff;
+}
+
+/* 工商信息 */
+.business-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24rpx;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #999;
+  width: 180rpx;
+  flex-shrink: 0;
+}
+
+.info-value {
+  font-size: 26rpx;
+  color: #333;
+  flex: 1;
+  word-break: break-all;
+}
+
+/* 职位列表 */
+.job-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.job-item {
+  background: #fff;
+  padding: 28rpx 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.job-item:last-child {
+  border-bottom: none;
+}
+
+.job-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+}
+
+.job-info {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 12rpx;
+}
+
+.job-salary {
+  font-size: 28rpx;
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.job-location,
+.job-experience {
+  font-size: 24rpx;
+  color: #666;
+}
+
+.job-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.job-tag {
+  padding: 6rpx 16rpx;
+  background: #f0f0f0;
+  color: #666;
+  font-size: 22rpx;
+  border-radius: 8rpx;
+}
+
+/* 面经列表 */
+.interview-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.interview-item {
+  background: #fff;
+  padding: 28rpx 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.interview-item:last-child {
+  border-bottom: none;
+}
+
+.interview-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12rpx;
+  line-height: 1.4;
+}
+
+.interview-meta {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin-bottom: 12rpx;
+}
+
+.interview-author,
+.interview-time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.interview-preview {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

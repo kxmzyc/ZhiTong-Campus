@@ -2,14 +2,37 @@
 const API_BASE_URL = 'http://localhost:8080/api';
 
 /**
+ * 将对象转换为 URL 查询字符串
+ */
+function buildQueryString(params) {
+  if (!params || Object.keys(params).length === 0) {
+    return '';
+  }
+  const query = Object.keys(params)
+    .filter(key => params[key] !== undefined && params[key] !== null && params[key] !== '')
+    .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+    .join('&');
+  return query ? `?${query}` : '';
+}
+
+/**
  * 发送 HTTP 请求
  */
 function request(url, options = {}) {
   return new Promise((resolve, reject) => {
+    // 对于 GET 请求，将参数拼接到 URL 上
+    let requestUrl = `${API_BASE_URL}${url}`;
+    let requestData = options.data || {};
+
+    if (options.method === 'GET' && requestData && Object.keys(requestData).length > 0) {
+      requestUrl += buildQueryString(requestData);
+      requestData = {}; // GET 请求不需要 body
+    }
+
     wx.request({
-      url: `${API_BASE_URL}${url}`,
+      url: requestUrl,
       method: options.method || 'GET',
-      data: options.data || {},
+      data: requestData,
       header: {
         'content-type': 'application/json',
         ...options.header

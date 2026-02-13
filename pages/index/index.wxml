@@ -26,9 +26,9 @@
         <view class="suggestions-title">快捷提问</view>
       </view>
       <view class="suggestions">
-        <view wx:for="{{suggestions}}" wx:key="*this" 
+        <view wx:for="{{suggestions}}" wx:key="*this"
               class="suggestion-item ui-pressable" hover-class="ui-press"
-              bindtap="onSuggestionTap" 
+              bindtap="onSuggestionTap"
               data-suggestion="{{item}}">
           <text class="suggestion-text">{{item}}</text>
           <view class="suggestion-arrow"></view>
@@ -80,8 +80,8 @@
 
   <!-- Input Area -->
   <view class="input-area">
-    <input class="input-field" 
-           placeholder="请输入..." 
+    <input class="input-field"
+           placeholder="请输入..."
            value="{{inputValue}}"
            bindinput="onInputChange"
            bindconfirm="sendMessage" />

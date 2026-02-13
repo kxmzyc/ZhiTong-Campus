@@ -1,0 +1,118 @@
+<!--pages/company-detail/company-detail.wxml-->
+<view class="container">
+  <!-- 自定义导航栏 -->
+  <view class="custom-navbar">
+    <view class="navbar-content">
+      <view class="navbar-left" bindtap="goBack">
+        <view class="back-icon"></view>
+      </view>
+      <view class="navbar-title">公司</view>
+      <view class="navbar-right" bindtap="onShare">
+        <view class="share-icon"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 页面内容区 -->
+  <view class="page-content">
+    <!-- 公司头部信息卡片 -->
+    <view class="company-header">
+      <view class="company-main-info">
+        <image class="company-logo" src="{{companyInfo.logo}}" mode="aspectFit" />
+        <view class="company-basic">
+          <view class="company-name">{{companyInfo.name}}</view>
+          <view class="company-meta">
+            <text class="meta-item">{{companyInfo.industry}}</text>
+            <text class="meta-divider">|</text>
+            <text class="meta-item">{{companyInfo.scale}}</text>
+          </view>
+          <view class="company-status">{{companyInfo.financingStatus}}</view>
+        </view>
+        <view class="follow-btn {{isFollowed ? 'followed' : ''}}" bindtap="toggleFollow">
+          <text class="follow-icon">{{isFollowed ? '✓' : '+'}}</text>
+          <text class="follow-text">{{isFollowed ? '已关注' : '关注'}}</text>
+        </view>
+      </view>
+      <view class="job-count-info">
+        <text class="job-count-label">在招职位</text>
+        <text class="job-count-number">{{companyInfo.jobCount}}+</text>
+      </view>
+    </view>
+
+    <!-- Tab导航栏 -->
+    <view class="tab-nav">
+      <view class="tab-item {{activeTab === 0 ? 'active' : ''}}" bindtap="switchTab" data-index="0">
+        <text class="tab-text">公司主页</text>
+        <view class="tab-indicator" wx:if="{{activeTab === 0}}"></view>
+      </view>
+      <view class="tab-item {{activeTab === 1 ? 'active' : ''}}" bindtap="switchTab" data-index="1">
+        <text class="tab-text">全部职位</text>
+        <view class="tab-indicator" wx:if="{{activeTab === 1}}"></view>
+      </view>
+      <view class="tab-item {{activeTab === 2 ? 'active' : ''}}" bindtap="switchTab" data-index="2">
+        <text class="tab-text">面经</text>
+        <view class="tab-indicator" wx:if="{{activeTab === 2}}"></view>
+      </view>
+    </view>
+
+    <!-- 内容区域 -->
+    <scroll-view class="content-area" scroll-y="{{true}}">
+      <!-- 公司主页 -->
+      <view class="tab-content" wx:if="{{activeTab === 0}}">
+        <!-- 公司介绍 -->
+        <view class="section">
+          <view class="section-title">公司介绍</view>
+          <view class="company-intro {{introExpanded ? 'expanded' : ''}}">
+            <text class="intro-text">{{companyInfo.introduction}}</text>
+          </view>
+          <view class="expand-btn" bindtap="toggleIntro" wx:if="{{companyInfo.introduction.length > 100}}">
+            <text class="expand-text">{{introExpanded ? '收起' : '展开'}}</text>
+            <view class="expand-icon {{introExpanded ? 'up' : 'down'}}"></view>
+          </view>
+        </view>
+
+        <!-- 工商信息 -->
+        <view class="section">
+          <view class="section-title">工商信息</view>
+          <view class="business-info">
+            <view class="info-row" wx:for="{{businessInfo}}" wx:key="label">
+              <view class="info-label">{{item.label}}</view>
+              <view class="info-value">{{item.value}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 全部职位 -->
+      <view class="tab-content" wx:if="{{activeTab === 1}}">
+        <view class="job-list">
+          <view class="job-item" wx:for="{{jobList}}" wx:key="id" bindtap="goToJobDetail" data-id="{{item.id}}">
+            <view class="job-title">{{item.title}}</view>
+            <view class="job-info">
+              <text class="job-salary">{{item.salary}}</text>
+              <text class="job-location">{{item.location}}</text>
+              <text class="job-experience">{{item.experience}}</text>
+            </view>
+            <view class="job-tags">
+              <text class="job-tag" wx:for="{{item.tags}}" wx:key="*this" wx:for-item="tag">{{tag}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 面经 -->
+      <view class="tab-content" wx:if="{{activeTab === 2}}">
+        <view class="interview-list">
+          <view class="interview-item" wx:for="{{interviewList}}" wx:key="id">
+            <view class="interview-title">{{item.title}}</view>
+            <view class="interview-meta">
+              <text class="interview-author">{{item.author}}</text>
+              <text class="interview-time">{{item.time}}</text>
+            </view>
+            <view class="interview-preview">{{item.preview}}</view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

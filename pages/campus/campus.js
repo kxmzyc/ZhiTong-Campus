@@ -1,6 +1,57 @@
 // pages/campus/campus.js
 const api = require('../../utils/api');
 
+/**
+ * 静态数据源 - 四大互联网公司
+ * 注意：字段名必须与 wxml 中的绑定保持一致
+ */
+const MOCK_COMPANIES = [
+  {
+    id: 101,
+    name: '阿里巴巴',
+    logo: 'https://ui-avatars.com/api/?name=Alibaba&background=FF6A00&color=fff&size=200&bold=true',
+    tags: ['互联网', '电商', '云计算'],
+    industry: '互联网',
+    position: '技术',
+    city: '杭州',
+    description: '热招岗位：Java/前端/算法/云计算等多个方向开放，欢迎投递。',
+    jobCount: 1200
+  },
+  {
+    id: 102,
+    name: '腾讯',
+    logo: 'https://ui-avatars.com/api/?name=Tencent&background=00A4FF&color=fff&size=200&bold=true',
+    tags: ['互联网', '游戏', '社交'],
+    industry: '互联网',
+    position: '技术',
+    city: '深圳',
+    description: '热招岗位：微信/游戏/腾讯云等核心业务持续招聘中。',
+    jobCount: 800
+  },
+  {
+    id: 103,
+    name: '字节跳动',
+    logo: 'https://ui-avatars.com/api/?name=ByteDance&background=0052D9&color=fff&size=200&bold=true',
+    tags: ['互联网', '短视频', 'AI'],
+    industry: '互联网',
+    position: '技术',
+    city: '北京',
+    description: '热招岗位：抖音/今日头条/飞书等产品线技术岗位开放。',
+    jobCount: 1000
+  },
+  {
+    id: 201,
+    name: '网易',
+    logo: 'https://ui-avatars.com/api/?name=NetEase&background=D32F2F&color=fff&size=200&bold=true',
+    tags: ['互联网', '游戏', '音乐'],
+    industry: '互联网',
+    position: '技术',
+    city: '杭州',
+    description: '热招岗位：游戏/云音乐/有道等业务线持续招聘中。',
+    jobCount: 600
+  }
+];
+
 Page({
 
   /**
@@ -23,123 +74,11 @@ Page({
       position: ['全部', '技术', '产品', '运营', '设计'],
       city: ['全部', '北京', '上海', '深圳', '杭州']
     },
+    // 保留原有的 companiesByTab 结构，但不再使用
     companiesByTab: {
-      0: [
-        {
-          id: 101,
-          name: '阿里巴巴',
-          logo: '/images/company1.jpg',
-          tags: ['互联网', '电商', '云计算'],
-          industry: '互联网',
-          position: '技术',
-          city: '杭州',
-          description: '热招岗位：前端/后端/算法/产品等多个方向开放。',
-          jobCount: 156
-        },
-        {
-          id: 102,
-          name: '腾讯',
-          logo: '/images/company2.jpg',
-          tags: ['互联网', '游戏', '社交'],
-          industry: '互联网',
-          position: '技术',
-          city: '深圳',
-          description: '热招岗位：校招提前批进行中，建议尽早投递核心岗位。',
-          jobCount: 234
-        },
-        {
-          id: 103,
-          name: '字节跳动',
-          logo: '/images/company3.jpg',
-          tags: ['互联网', '短视频', 'AI'],
-          industry: '互联网',
-          position: '产品',
-          city: '北京',
-          description: '热招岗位：技术岗持续更新，支持多城市投递。',
-          jobCount: 189
-        },
-        {
-          id: 104,
-          name: '华为',
-          logo: '/images/company4.jpg',
-          tags: ['通信', '硬件', '5G'],
-          industry: '通信',
-          position: '技术',
-          city: '深圳',
-          description: '热招岗位：研发/测试/产品等方向，覆盖北京/上海/深圳。',
-          jobCount: 267
-        }
-      ],
-      1: [
-        {
-          id: 201,
-          name: '网易',
-          logo: '/images/company8.jpg',
-          tags: ['互联网', '游戏', '音乐'],
-          industry: '互联网',
-          position: '运营',
-          city: '杭州',
-          description: '校招简章：宣讲会/双选会信息已发布，欢迎投递应届岗位。',
-          jobCount: 98
-        },
-        {
-          id: 202,
-          name: '小米',
-          logo: '/images/company9.jpg',
-          tags: ['硬件', '手机', 'IoT'],
-          industry: '硬件',
-          position: '产品',
-          city: '北京',
-          description: '校招简章：技术/产品/设计岗位开放，笔试与面试安排已公布。',
-          jobCount: 167
-        },
-        {
-          id: 203,
-          name: '滴滴',
-          logo: '/images/company10.jpg',
-          tags: ['互联网', '出行', '共享经济'],
-          industry: '出行',
-          position: '技术',
-          city: '北京',
-          description: '校招简章：招聘流程、岗位说明、面试节奏与城市站点安排。',
-          jobCount: 89
-        }
-      ],
-      2: [
-        {
-          id: 301,
-          name: '美团',
-          logo: '/images/company5.jpg',
-          tags: ['网申', '流程'],
-          industry: '互联网',
-          position: '运营',
-          city: '北京',
-          description: '网申流程、测评说明、面试节奏（示例数据）。',
-          jobCount: 5
-        },
-        {
-          id: 302,
-          name: '京东',
-          logo: '/images/company6.jpg',
-          tags: ['网申', '笔试'],
-          industry: '电商',
-          position: '技术',
-          city: '北京',
-          description: '笔试题型、投递策略与注意事项（示例数据）。',
-          jobCount: 4
-        },
-        {
-          id: 303,
-          name: '百度',
-          logo: '/images/company7.jpg',
-          tags: ['网申', '面试'],
-          industry: '互联网',
-          position: '技术',
-          city: '北京',
-          description: '技术岗面试流程、准备建议（示例数据）。',
-          jobCount: 7
-        }
-      ]
+      0: [],
+      1: [],
+      2: []
     },
     companies: []
   },
@@ -175,14 +114,22 @@ Page({
     });
   },
 
+  /**
+   * 跳转到公司详情页
+   * 注意：确保能正确获取 dataset.id 并跳转
+   */
   goToCompanyDetail(e) {
     const companyId = e.currentTarget.dataset.id;
-    wx.showToast({
-      title: `公司ID: ${companyId}`,
-      icon: 'none'
+    console.log('点击公司卡片，ID:', companyId);
+    wx.navigateTo({
+      url: `/pages/company-detail/company-detail?id=${companyId}`
     });
   },
 
+  /**
+   * 切换子标签页
+   * 注意：所有标签页都显示相同的4家公司
+   */
   onSubTabChange(e) {
     const index = Number(e.currentTarget.dataset.index);
     if (Number.isNaN(index) || index === this.data.activeSubTab) return;
@@ -199,7 +146,8 @@ Page({
         jobCountSuffix: suffixMap[index] || ''
       },
       () => {
-        this.refreshCompanies();
+        // 所有标签页都显示相同的4家公司
+        this.loadMockCompanies();
       }
     );
   },
@@ -226,26 +174,100 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+    console.log('=== campus onLoad ===');
     this.syncSelectedCities();
     this.syncSelectedIndustries();
     this.syncSelectedPositions();
-    this.loadJobsFromBackend();
-  },
 
-  onShow() {
-    this.syncSelectedCities();
-    this.syncSelectedIndustries();
-    this.syncSelectedPositions();
-    this.loadJobsFromBackend();
+    // 【步骤2】暂时注释掉后端加载，使用 Mock 数据
+    // this.loadJobsFromBackend();
+
+    // 直接加载 Mock 数据
+    this.loadMockCompanies();
   },
 
   /**
-   * 从后端加载职位数据
+   * 生命周期函数--监听页面显示
+   */
+  onShow() {
+    console.log('=== campus onShow ===');
+    this.syncSelectedCities();
+    this.syncSelectedIndustries();
+    this.syncSelectedPositions();
+
+    // 【步骤2】暂时注释掉后端加载，使用 Mock 数据
+    // this.loadJobsFromBackend();
+
+    // 直接加载 Mock 数据
+    this.loadMockCompanies();
+  },
+
+  /**
+   * 加载 Mock 公司数据
+   * 【步骤1 & 步骤2】使用静态数据源，确保用户看到4家指定公司
+   */
+  loadMockCompanies() {
+    console.log('加载 Mock 公司数据，共', MOCK_COMPANIES.length, '家');
+
+    // 直接设置为静态数据
+    this.setData({
+      companies: MOCK_COMPANIES
+    });
+
+    console.log('Mock 数据加载完成');
+  },
+
+  /**
+   * 从后端加载职位数据（已暂时禁用）
+   * 【步骤2】注释说明：暂时不使用后端数据，避免覆盖 Mock 数据
    */
   loadJobsFromBackend() {
+    console.warn('loadJobsFromBackend 已暂时禁用，当前使用 Mock 数据');
+
+    // 如果需要恢复后端加载，取消下面的注释
+    /*
+    // 构建查询参数
+    const params = {};
+
+    // 关键词搜索
+    const keyword = (this.data.searchQuery || '').trim();
+    if (keyword) {
+      params.keyword = keyword;
+    }
+
+    // 城市筛选（取第一个选中的城市）
+    const selectedCities = this.data.selectedCities || [];
+    if (selectedCities.length > 0) {
+      const city = selectedCities[0];
+      // 过滤掉"全部"、"全国"等特殊值
+      if (city && city !== '全部' && city !== '全国' && city !== '不限') {
+        params.city = city;
+      }
+    }
+
+    // 行业筛选（取第一个选中的行业）
+    const selectedIndustries = this.data.selectedIndustries || [];
+    if (selectedIndustries.length > 0) {
+      const industry = selectedIndustries[0];
+      // 过滤掉"全部"、"不限"等特殊值
+      if (industry && industry !== '全部' && industry !== '不限') {
+        params.industry = industry;
+      }
+    }
+
+    // 职位类型筛选（取第一个选中的职位类型）
+    const selectedPositions = this.data.selectedPositions || [];
+    if (selectedPositions.length > 0) {
+      const jobType = selectedPositions[0];
+      // 过滤掉"全部"等特殊值
+      if (jobType && jobType !== '全部' && jobType !== '不限') {
+        params.jobType = jobType;
+      }
+    }
+
     wx.showLoading({ title: '加载中...' });
 
-    api.getJobList()
+    api.getJobList(params)
       .then(res => {
         wx.hideLoading();
         if (res.code === 200 && res.data) {
@@ -258,22 +280,14 @@ Page({
             industry: job.industry,
             position: job.title,
             city: job.city,
-            description: `${job.title} | ${job.salaryRange} | ${job.educationRequired}`,
+            description: `${job.title} | ${job.salaryRange || '面议'} | ${job.educationRequired || ''}`,
             jobCount: 1,
             jobData: job // 保存完整的职位数据
           }));
 
-          // 按公司分组
-          const companiesByTab = {
-            0: jobs, // 热招岗位
-            1: [], // 校招简章（暂时为空）
-            2: []  // 网申简章（暂时为空）
-          };
-
+          // 直接设置为当前显示的列表
           this.setData({
-            companiesByTab: companiesByTab
-          }, () => {
-            this.refreshCompanies();
+            companies: jobs
           });
         }
       })
@@ -281,13 +295,12 @@ Page({
         wx.hideLoading();
         console.error('加载职位失败:', err);
         wx.showToast({
-          title: '加载失败，请检查后端服务',
+          title: '加载失败，请检查网络',
           icon: 'none',
           duration: 2000
         });
-        // 失败时使用原有的模拟数据
-        this.refreshCompanies();
       });
+    */
   },
 
   updateFilterActiveStates(extra = {}) {
@@ -353,16 +366,50 @@ Page({
 
   onSearchInput(e) {
     const value = (e.detail && e.detail.value) || '';
-    this.setData({ searchQuery: value }, () => this.refreshCompanies());
+    this.setData({ searchQuery: value });
   },
 
   onSearchConfirm(e) {
     const value = (e.detail && e.detail.value) || this.data.searchQuery || '';
-    this.setData({ searchQuery: value }, () => this.refreshCompanies());
+    this.setData({ searchQuery: value }, () => {
+      // 【注意】搜索功能暂时不触发后端查询，保持显示 Mock 数据
+      console.log('搜索关键词:', value);
+      // this.loadJobsFromBackend();
+
+      // 可以在这里实现前端搜索过滤
+      this.filterMockCompanies(value);
+    });
   },
 
   onSearchTap() {
-    this.refreshCompanies();
+    // 【注意】搜索功能暂时不触发后端查询，保持显示 Mock 数据
+    console.log('点击搜索按钮');
+    // this.loadJobsFromBackend();
+
+    // 可以在这里实现前端搜索过滤
+    this.filterMockCompanies(this.data.searchQuery);
+  },
+
+  /**
+   * 前端搜索过滤（可选功能）
+   * 根据关键词过滤 Mock 公司数据
+   */
+  filterMockCompanies(keyword) {
+    if (!keyword || keyword.trim() === '') {
+      // 如果没有关键词，显示所有公司
+      this.setData({ companies: MOCK_COMPANIES });
+      return;
+    }
+
+    const lowerKeyword = keyword.toLowerCase().trim();
+    const filtered = MOCK_COMPANIES.filter(company => {
+      return company.name.toLowerCase().includes(lowerKeyword) ||
+             company.description.toLowerCase().includes(lowerKeyword) ||
+             company.tags.some(tag => tag.toLowerCase().includes(lowerKeyword));
+    });
+
+    console.log('搜索结果:', filtered.length, '家公司');
+    this.setData({ companies: filtered });
   },
 
   normalizeCity(name) {
@@ -372,57 +419,15 @@ Page({
     return s;
   },
 
+  // ========== 以下方法已废弃，改为后端动态查询 ==========
+
+  /**
+   * @deprecated 已改为后端动态查询，不再需要前端筛选
+   */
   refreshCompanies() {
-    const active = this.data.activeSubTab;
-    const companiesByTab = this.data.companiesByTab || {};
-    const source = companiesByTab[active] || [];
-
-    const rawQuery = (this.data.searchQuery || '').trim();
-    if (rawQuery) {
-      const q = rawQuery.toLowerCase();
-      const list = source.filter((c) => {
-        const name = (c.name || '').toLowerCase();
-        const desc = (c.description || '').toLowerCase();
-        const tags = Array.isArray(c.tags) ? c.tags.join(' ') : '';
-        return name.includes(q) || desc.includes(q) || tags.toLowerCase().includes(q);
-      });
-      this.setData({ companies: list });
-      return;
-    }
-
-    const { selectedIndustries, selectedPositions, selectedCities } = this.data;
-    const citySet = new Set(
-      (Array.isArray(selectedCities) ? selectedCities : [])
-        .map((c) => this.normalizeCity(c))
-        .filter(Boolean)
-    );
-
-    const industryKeywords = (Array.isArray(selectedIndustries) ? selectedIndustries : []).filter(Boolean);
-    const positionKeywords = (Array.isArray(selectedPositions) ? selectedPositions : []).filter(Boolean);
-
-    const matchByKeywords = (c, keywords) => {
-      if (!keywords.length) return true;
-      const haystack = [
-        c.name,
-        c.description,
-        c.industry,
-        c.position,
-        c.city,
-        Array.isArray(c.tags) ? c.tags.join(' ') : ''
-      ]
-        .filter(Boolean)
-        .join(' ');
-      return keywords.some((k) => haystack.includes(k));
-    };
-
-    const list = source.filter((c) => {
-      if (!matchByKeywords(c, industryKeywords)) return false;
-      if (!matchByKeywords(c, positionKeywords)) return false;
-      if (citySet.size && !citySet.has(this.normalizeCity(c.city))) return false;
-      return true;
-    });
-
-    this.setData({ companies: list });
+    // 此方法已废弃，保留用于兼容性
+    // 现在所有筛选都通过 loadJobsFromBackend() 实现
+    console.warn('refreshCompanies 方法已废弃，请使用 loadJobsFromBackend');
   },
 
   /**

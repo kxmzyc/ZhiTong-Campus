@@ -8,10 +8,15 @@ function testHello() {
 }
 
 /**
- * 获取所有职位列表
+ * 获取职位列表（支持动态搜索）
+ * @param {Object} params - 查询参数
+ * @param {string} params.keyword - 关键词（可选）
+ * @param {string} params.city - 城市（可选）
+ * @param {string} params.industry - 行业（可选）
+ * @param {string} params.jobType - 职位类型（可选）
  */
-function getJobList() {
-  return get('/job/list');
+function getJobList(params) {
+  return get('/job/list', params);
 }
 
 /**
