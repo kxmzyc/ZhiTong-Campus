@@ -11,12 +11,22 @@ import java.util.List;
 public interface JobService extends IService<Job> {
 
     /**
-     * 动态搜索职位（支持关键词、城市、行业、职位类型筛选）
-     * @param keyword 关键词（搜索标题和公司名）
-     * @param city 城市
-     * @param industry 行业
-     * @param jobType 职位类型
+     * 根据公司ID获取职位列表
+     * @param companyId 公司ID
      * @return 职位列表
      */
-    List<Job> searchJobs(String keyword, String city, String industry, String jobType);
+    List<Job> getJobsByCompanyId(Long companyId);
+
+    /**
+     * 获取所有职位列表
+     * @return 职位列表
+     */
+    List<Job> getAllJobs();
+
+    /**
+     * 根据ID获取职位详情
+     * @param id 职位ID
+     * @return 职位详情
+     */
+    Job getJobById(Long id);
 }

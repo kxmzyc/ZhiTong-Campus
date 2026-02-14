@@ -1,0 +1,57 @@
+<!--pages/job-detail/job-detail.wxml-->
+<view class="container">
+  <!-- 顶部导航栏 -->
+  <view class="header">
+    <view class="back-btn" bindtap="goBack">
+      <text class="iconfont icon-back">‹</text>
+    </view>
+    <view class="header-title">职位详情</view>
+    <view class="placeholder"></view>
+  </view>
+
+  <!-- 职位基本信息 -->
+  <view class="job-info-card">
+    <view class="job-title">{{job.title}}</view>
+    <view class="job-salary">{{job.salary}}</view>
+    <view class="job-tags">
+      <text class="tag">{{job.education}}</text>
+      <text class="tag">{{job.experience}}</text>
+      <text class="tag">{{job.city}}</text>
+    </view>
+  </view>
+
+  <!-- 公司信息 -->
+  <view class="company-card" bindtap="goToCompanyDetail" wx:if="{{company.name}}">
+    <image class="company-logo" src="{{company.logo}}" mode="aspectFill"></image>
+    <view class="company-info">
+      <view class="company-name">{{company.name}}</view>
+      <view class="company-desc">{{company.industry}} · {{company.scale}}</view>
+    </view>
+    <text class="arrow">›</text>
+  </view>
+
+  <!-- 职位描述 -->
+  <view class="section">
+    <view class="section-title">职位描述</view>
+    <view class="section-content">
+      <text class="description">{{job.description}}</text>
+    </view>
+  </view>
+
+  <!-- 技能标签 -->
+  <view class="section" wx:if="{{job.tags.length > 0}}">
+    <view class="section-title">技能要求</view>
+    <view class="skill-tags">
+      <text class="skill-tag" wx:for="{{job.tags}}" wx:key="index">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 底部占位 -->
+  <view class="bottom-placeholder"></view>
+
+  <!-- 底部操作栏 -->
+  <view class="bottom-bar">
+    <button class="btn-chat" bindtap="onChat">立即沟通</button>
+    <button class="btn-apply" bindtap="onApply">投递简历</button>
+  </view>
+</view>

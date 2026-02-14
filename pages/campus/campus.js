@@ -179,11 +179,8 @@ Page({
     this.syncSelectedIndustries();
     this.syncSelectedPositions();
 
-    // 【步骤2】暂时注释掉后端加载，使用 Mock 数据
-    // this.loadJobsFromBackend();
-
-    // 直接加载 Mock 数据
-    this.loadMockCompanies();
+    // 从后端加载公司数据
+    this.loadCompaniesFromBackend();
   },
 
   /**
@@ -195,37 +192,14 @@ Page({
     this.syncSelectedIndustries();
     this.syncSelectedPositions();
 
-    // 【步骤2】暂时注释掉后端加载，使用 Mock 数据
-    // this.loadJobsFromBackend();
-
-    // 直接加载 Mock 数据
-    this.loadMockCompanies();
+    // 从后端加载公司数据
+    this.loadCompaniesFromBackend();
   },
 
   /**
-   * 加载 Mock 公司数据
-   * 【步骤1 & 步骤2】使用静态数据源，确保用户看到4家指定公司
+   * 从后端加载公司数据
    */
-  loadMockCompanies() {
-    console.log('加载 Mock 公司数据，共', MOCK_COMPANIES.length, '家');
-
-    // 直接设置为静态数据
-    this.setData({
-      companies: MOCK_COMPANIES
-    });
-
-    console.log('Mock 数据加载完成');
-  },
-
-  /**
-   * 从后端加载职位数据（已暂时禁用）
-   * 【步骤2】注释说明：暂时不使用后端数据，避免覆盖 Mock 数据
-   */
-  loadJobsFromBackend() {
-    console.warn('loadJobsFromBackend 已暂时禁用，当前使用 Mock 数据');
-
-    // 如果需要恢复后端加载，取消下面的注释
-    /*
+  loadCompaniesFromBackend() {
     // 构建查询参数
     const params = {};
 
@@ -241,7 +215,7 @@ Page({
       const city = selectedCities[0];
       // 过滤掉"全部"、"全国"等特殊值
       if (city && city !== '全部' && city !== '全国' && city !== '不限') {
-        params.city = city;
+        params.location = city;
       }
     }
 
@@ -255,52 +229,53 @@ Page({
       }
     }
 
-    // 职位类型筛选（取第一个选中的职位类型）
-    const selectedPositions = this.data.selectedPositions || [];
-    if (selectedPositions.length > 0) {
-      const jobType = selectedPositions[0];
-      // 过滤掉"全部"等特殊值
-      if (jobType && jobType !== '全部' && jobType !== '不限') {
-        params.jobType = jobType;
-      }
-    }
-
     wx.showLoading({ title: '加载中...' });
 
-    api.getJobList(params)
+    api.getCompanyList(params)
       .then(res => {
         wx.hideLoading();
         if (res.code === 200 && res.data) {
-          // 将后端职位数据转换为前端格式
-          const jobs = res.data.map(job => ({
-            id: job.id,
-            name: job.company,
-            logo: '/images/company1.jpg', // 默认logo
-            tags: [job.industry, job.jobType, job.city].filter(Boolean),
-            industry: job.industry,
-            position: job.title,
-            city: job.city,
-            description: `${job.title} | ${job.salaryRange || '面议'} | ${job.educationRequired || ''}`,
-            jobCount: 1,
-            jobData: job // 保存完整的职位数据
+          // 解析 tags 字段并映射字段名
+          const companies = res.data.map(company => ({
+            id: company.id,
+            name: company.name,
+            logo: company.logo,
+            tags: JSON.parse(company.tags || '[]'), // 解析 JSON 字符串为数组
+            industry: company.industry,
+            position: '技术', // 默认值
+            city: company.location, // 后端字段是 location，前端是 city
+            description: company.description,
+            jobCount: company.jobCount
           }));
 
-          // 直接设置为当前显示的列表
-          this.setData({
-            companies: jobs
-          });
+          this.setData({ companies });
+          console.log('成功加载', companies.length, '家公司');
         }
       })
       .catch(err => {
         wx.hideLoading();
-        console.error('加载职位失败:', err);
+        console.error('加载公司失败:', err);
         wx.showToast({
-          title: '加载失败，请检查网络',
-          icon: 'none',
-          duration: 2000
+          title: '加载失败',
+          icon: 'none'
         });
+        // 失败时使用 Mock 数据作为降级方案
+        this.loadMockCompanies();
       });
-    */
+  },
+
+  /**
+   * 加载 Mock 公司数据（降级方案）
+   */
+  loadMockCompanies() {
+    console.log('加载 Mock 公司数据，共', MOCK_COMPANIES.length, '家');
+
+    // 直接设置为静态数据
+    this.setData({
+      companies: MOCK_COMPANIES
+    });
+
+    console.log('Mock 数据加载完成');
   },
 
   updateFilterActiveStates(extra = {}) {
@@ -372,44 +347,16 @@ Page({
   onSearchConfirm(e) {
     const value = (e.detail && e.detail.value) || this.data.searchQuery || '';
     this.setData({ searchQuery: value }, () => {
-      // 【注意】搜索功能暂时不触发后端查询，保持显示 Mock 数据
       console.log('搜索关键词:', value);
-      // this.loadJobsFromBackend();
-
-      // 可以在这里实现前端搜索过滤
-      this.filterMockCompanies(value);
+      // 调用后端接口进行搜索
+      this.loadCompaniesFromBackend();
     });
   },
 
   onSearchTap() {
-    // 【注意】搜索功能暂时不触发后端查询，保持显示 Mock 数据
     console.log('点击搜索按钮');
-    // this.loadJobsFromBackend();
-
-    // 可以在这里实现前端搜索过滤
-    this.filterMockCompanies(this.data.searchQuery);
-  },
-
-  /**
-   * 前端搜索过滤（可选功能）
-   * 根据关键词过滤 Mock 公司数据
-   */
-  filterMockCompanies(keyword) {
-    if (!keyword || keyword.trim() === '') {
-      // 如果没有关键词，显示所有公司
-      this.setData({ companies: MOCK_COMPANIES });
-      return;
-    }
-
-    const lowerKeyword = keyword.toLowerCase().trim();
-    const filtered = MOCK_COMPANIES.filter(company => {
-      return company.name.toLowerCase().includes(lowerKeyword) ||
-             company.description.toLowerCase().includes(lowerKeyword) ||
-             company.tags.some(tag => tag.toLowerCase().includes(lowerKeyword));
-    });
-
-    console.log('搜索结果:', filtered.length, '家公司');
-    this.setData({ companies: filtered });
+    // 调用后端接口进行搜索
+    this.loadCompaniesFromBackend();
   },
 
   normalizeCity(name) {

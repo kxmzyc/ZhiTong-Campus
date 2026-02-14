@@ -1,7 +1,8 @@
 // pages/company-detail/company-detail.js
+const api = require('../../utils/api');
 
 /**
- * Mock 数据仓库 - 四大互联网公司详情数据
+ * Mock 数据仓库 - 四大互联网公司详情数据（降级方案）
  * 使用 Map 结构便于快速查找
  */
 const MOCK_COMPANIES = {
@@ -318,8 +319,11 @@ Page({
     console.log('转换后的 ID:', companyId);
     console.log('转换后类型:', typeof companyId);
 
-    // 从Mock数据仓库中加载公司信息
+    // 从后端加载公司信息
     this.loadCompanyDetail(companyId);
+
+    // 从后端加载职位列表
+    this.loadJobList(companyId);
   },
 
   /**
@@ -329,7 +333,54 @@ Page({
   loadCompanyDetail(companyId) {
     console.log('=== loadCompanyDetail ===');
     console.log('查找公司 ID:', companyId);
-    console.log('可用的公司 ID:', Object.keys(MOCK_COMPANIES));
+
+    wx.showLoading({ title: '加载中...' });
+
+    // 从后端加载公司详情
+    api.getCompanyDetail(companyId)
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200 && res.data) {
+          const company = res.data;
+          console.log('✅ 成功加载公司数据:', company.name);
+
+          // 更新页面数据
+          this.setData({
+            companyId: company.id,
+            companyInfo: {
+              id: company.id,
+              name: company.name,
+              logo: company.logo,
+              industry: company.industry,
+              scale: company.scale,
+              financingStatus: company.financingStatus,
+              jobCount: company.jobCount,
+              introduction: company.introduction
+            },
+            businessInfo: JSON.parse(company.businessInfo || '[]'), // 解析工商信息
+            interviewList: [] // 后端暂无面经列表，使用空数组
+          });
+
+          console.log('页面数据更新完成');
+        } else {
+          throw new Error('数据格式错误');
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('❌ 加载公司详情失败:', err);
+
+        // 降级方案：尝试从 Mock 数据加载
+        this.loadCompanyDetailFromMock(companyId);
+      });
+  },
+
+  /**
+   * 从 Mock 数据加载公司详情（降级方案）
+   * @param {Number} companyId - 公司ID
+   */
+  loadCompanyDetailFromMock(companyId) {
+    console.log('使用 Mock 数据作为降级方案');
 
     // 从Mock数据仓库中查找公司数据
     let companyData = MOCK_COMPANIES[companyId];
@@ -376,6 +427,48 @@ Page({
     });
 
     console.log('页面数据更新完成');
+  },
+
+  /**
+   * 从后端加载职位列表
+   * @param {Number} companyId - 公司ID
+   */
+  loadJobList(companyId) {
+    console.log('=== loadJobList ===');
+    console.log('加载公司职位，公司ID:', companyId);
+
+    // 调用后端接口获取职位列表
+    api.getJobList({ companyId })
+      .then(res => {
+        if (res.code === 200 && res.data) {
+          console.log('✅ 成功加载职位数据，共', res.data.length, '个职位');
+
+          // 处理职位数据
+          const jobList = res.data.map(job => ({
+            id: job.id,
+            title: job.title,
+            salary: `${job.salaryMin}-${job.salaryMax}K`, // 拼接薪资范围
+            location: job.city, // 后端字段是 city，前端是 location
+            experience: job.experience,
+            tags: JSON.parse(job.tags || '[]') // 解析 JSON 字符串为数组
+          }));
+
+          // 更新页面数据
+          this.setData({ jobList });
+          console.log('职位列表更新完成');
+        } else {
+          throw new Error('职位数据格式错误');
+        }
+      })
+      .catch(err => {
+        console.error('❌ 加载职位列表失败:', err);
+        // 失败时使用 Mock 数据中的职位列表（如果有的话）
+        const mockData = MOCK_COMPANIES[companyId];
+        if (mockData && mockData.jobList) {
+          console.log('使用 Mock 职位数据作为降级方案');
+          this.setData({ jobList: mockData.jobList });
+        }
+      });
   },
 
   /**
@@ -434,9 +527,9 @@ Page({
    */
   goToJobDetail(e) {
     const jobId = e.currentTarget.dataset.id;
-    wx.showToast({
-      title: `职位ID: ${jobId}`,
-      icon: 'none'
+    console.log('点击职位卡片，职位ID:', jobId);
+    wx.navigateTo({
+      url: `/pages/job-detail/job-detail?id=${jobId}`
     });
   },
 

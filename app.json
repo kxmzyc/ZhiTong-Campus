@@ -7,6 +7,7 @@
     "pages/ai-select-delivery/ai-select-delivery",
     "pages/campus/campus",
     "pages/company-detail/company-detail",
+    "pages/job-detail/job-detail",
     "pages/city-select/city-select",
     "pages/industry-select/industry-select",
     "pages/position-select/position-select",

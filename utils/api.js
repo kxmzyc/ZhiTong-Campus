@@ -23,7 +23,7 @@ function getJobList(params) {
  * 获取职位详情
  */
 function getJobDetail(id) {
-  return get(`/job/${id}`);
+  return get(`/job/detail/${id}`);
 }
 
 /**
@@ -343,6 +343,27 @@ function toggleFavorite(userId, jobId) {
   return post('/favorite/toggle', { userId, jobId });
 }
 
+// ==================== 公司接口 ====================
+
+/**
+ * 获取公司列表
+ * @param {Object} params - 查询参数
+ * @param {string} params.keyword - 关键词（可选）
+ * @param {string} params.industry - 行业（可选）
+ * @param {string} params.location - 城市（可选）
+ */
+function getCompanyList(params) {
+  return get('/company/list', params);
+}
+
+/**
+ * 获取公司详情
+ * @param {Number} id - 公司ID
+ */
+function getCompanyDetail(id) {
+  return get(`/company/detail/${id}`);
+}
+
 module.exports = {
   testHello,
   getJobList,
@@ -397,5 +418,8 @@ module.exports = {
   removeFavorite,
   getFavoriteList,
   checkFavorited,
-  toggleFavorite
+  toggleFavorite,
+  // 公司
+  getCompanyList,
+  getCompanyDetail
 };
