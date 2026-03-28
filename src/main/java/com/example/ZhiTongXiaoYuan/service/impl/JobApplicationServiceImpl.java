@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.example.zhitongxiaoyuan.entity.JobApplication;
 import com.example.zhitongxiaoyuan.mapper.JobApplicationMapper;
 import com.example.zhitongxiaoyuan.service.JobApplicationService;
+import com.example.zhitongxiaoyuan.vo.JobApplicationVO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,6 +39,11 @@ public class JobApplicationServiceImpl extends ServiceImpl<JobApplicationMapper,
         wrapper.eq("user_id", userId);
         wrapper.orderByDesc("applied_at");
         return list(wrapper);
+    }
+
+    @Override
+    public List<JobApplicationVO> getApplicationListWithDetails(Long userId) {
+        return baseMapper.selectApplicationListWithDetails(userId);
     }
 
     @Override

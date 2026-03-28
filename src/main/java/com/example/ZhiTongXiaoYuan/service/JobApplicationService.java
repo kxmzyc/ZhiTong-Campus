@@ -2,6 +2,7 @@ package com.example.zhitongxiaoyuan.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.zhitongxiaoyuan.entity.JobApplication;
+import com.example.zhitongxiaoyuan.vo.JobApplicationVO;
 
 import java.util.List;
 
@@ -19,6 +20,11 @@ public interface JobApplicationService extends IService<JobApplication> {
      * 根据用户ID获取申请列表
      */
     List<JobApplication> getApplicationsByUserId(Long userId);
+
+    /**
+     * 根据用户ID获取申请列表（包含职位和公司详细信息）
+     */
+    List<JobApplicationVO> getApplicationListWithDetails(Long userId);
 
     /**
      * 根据用户ID和状态获取申请列表

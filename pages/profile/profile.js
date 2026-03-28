@@ -1,5 +1,6 @@
 // pages/profile/profile.js
 const app = getApp();
+const api = require('../../utils/api');
 const loginGuard = require('../../utils/loginGuard');
 
 Page({
@@ -18,7 +19,12 @@ Page({
       gradYear: '',
       gradDate: '----'
     },
-    avatarPath: ''
+    avatarPath: '',
+    stats: {
+      applied: 0,
+      pending: 0,
+      favorite: 0
+    }
   },
 
   /**
@@ -74,6 +80,9 @@ Page({
         avatarPath: ''
       });
     }
+
+    // 无条件加载统计数据（依靠 loadUserStats 内部的默认 userId）
+    this.loadUserStats();
   },
 
   /**
@@ -108,6 +117,31 @@ Page({
         avatarPath: basic.avatarPath || ''
       });
     }
+  },
+
+  /**
+   * 加载用户统计数据
+   */
+  loadUserStats() {
+    // 获取用户ID
+    const userId = app.globalData.userId || wx.getStorageSync('userId') || 1;
+
+    api.getUserStats(userId)
+      .then(res => {
+        if (res.code === 200 && res.data) {
+          this.setData({
+            stats: {
+              applied: res.data.appliedCount || 0,
+              pending: res.data.pendingCount || 0,
+              favorite: res.data.favoriteCount || 0
+            }
+          });
+        }
+      })
+      .catch(err => {
+        console.error('加载统计数据失败:', err);
+        // 失败时保持默认值 0
+      });
   },
 
   onBack() {

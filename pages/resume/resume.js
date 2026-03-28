@@ -1,5 +1,6 @@
 // pages/resume/resume.js
 const api = require('../../utils/api');
+const app = getApp();
 
 Page({
 
@@ -7,6 +8,7 @@ Page({
    * 页面的初始数据
    */
   data: {
+    avatarUrl: '',
     userId: 1, // 临时使用固定用户ID，后续需要从登录信息获取
     resumes: [],
     displayResumes: [],
@@ -14,6 +16,18 @@ Page({
     lastPickedFile: null,
     loading: false,
     isEmpty: false // 是否为空列表
+  },
+
+  /**
+   * 加载用户头像
+   */
+  loadUserAvatar() {
+    const userInfo = app.getUserInfo();
+    if (userInfo && userInfo.avatar) {
+      this.setData({
+        avatarUrl: userInfo.avatar
+      });
+    }
   },
 
   formatDate(date) {
@@ -397,6 +411,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+    this.loadUserAvatar();
     this.loadResumes();
   },
 
@@ -411,6 +426,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
+    this.loadUserAvatar();
     this.loadResumes();
   },
 

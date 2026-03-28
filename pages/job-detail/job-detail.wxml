@@ -52,6 +52,6 @@
   <!-- 底部操作栏 -->
   <view class="bottom-bar">
     <button class="btn-chat" bindtap="onChat">立即沟通</button>
-    <button class="btn-apply" bindtap="onApply">投递简历</button>
+    <button class="btn-apply {{isApplied ? 'btn-applied' : ''}}" bindtap="onApply" disabled="{{applyBtnDisabled}}">{{applyBtnText}}</button>
   </view>
 </view>

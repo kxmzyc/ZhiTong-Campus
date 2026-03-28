@@ -2,6 +2,8 @@ package com.example.zhitongxiaoyuan.controller;
 
 import com.example.zhitongxiaoyuan.common.Result;
 import com.example.zhitongxiaoyuan.entity.User;
+import com.example.zhitongxiaoyuan.service.FavoriteService;
+import com.example.zhitongxiaoyuan.service.JobApplicationService;
 import com.example.zhitongxiaoyuan.service.UserService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +24,12 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JobApplicationService jobApplicationService;
+
+    @Autowired
+    private FavoriteService favoriteService;
 
     @Value("${wechat.appid}")
     private String appid;
@@ -164,5 +172,28 @@ public class UserController {
         } catch (RuntimeException e) {
             return Result.error(e.getMessage());
         }
+    }
+
+    /**
+     * 获取用户统计数据（个人中心）
+     */
+    @GetMapping("/stats")
+    public Result<Map<String, Integer>> getUserStats(@RequestParam Long userId) {
+        Map<String, Integer> stats = new HashMap<>();
+
+        // 统计投递过的数量（所有状态）
+        int appliedCount = jobApplicationService.getApplicationsByUserId(userId).size();
+
+        // 统计待处理的数量（pending 状态）
+        int pendingCount = jobApplicationService.getApplicationsByUserIdAndStatus(userId, "pending").size();
+
+        // 统计收藏的数量
+        int favoriteCount = favoriteService.getFavoritesByUserId(userId).size();
+
+        stats.put("appliedCount", appliedCount);
+        stats.put("pendingCount", pendingCount);
+        stats.put("favoriteCount", favoriteCount);
+
+        return Result.success(stats);
     }
 }

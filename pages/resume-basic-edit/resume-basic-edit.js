@@ -1,4 +1,5 @@
 const api = require('../../utils/api');
+const app = getApp();
 
 Page({
   data: {
@@ -26,7 +27,7 @@ Page({
     const sys = wx.getSystemInfoSync();
     this.setData({
       statusBarHeight: sys.statusBarHeight || 0,
-      resumeId: parseInt(options.id)
+      resumeId: options.id ? parseInt(options.id) : null
     });
 
     this.loadData();
@@ -37,23 +38,53 @@ Page({
    */
   loadData() {
     if (!this.data.resumeId) {
-      // 如果没有 resumeId，尝试使用登录信息作为默认值
-      const app = getApp();
-      const loginUserInfo = app.getUserInfo();
-      if (loginUserInfo) {
-        this.setData({
-          form: {
-            ...this.data.form,
-            name: loginUserInfo.nickname || ''
-          }
-        });
-      }
+      // 如果没有 resumeId，先根据 userId 获取简历列表
+      this.loadResumeByUserId();
       return;
     }
 
+    // 有 resumeId，直接加载简历详情
+    this.loadResumeDetail(this.data.resumeId);
+  },
+
+  /**
+   * 根据用户ID加载简历
+   */
+  loadResumeByUserId() {
+    const userId = app.globalData.userId || wx.getStorageSync('userId') || 1;
+
     wx.showLoading({ title: '加载中...' });
 
-    api.getResumeDetail(this.data.resumeId)
+    api.getResumeList(userId)
+      .then(res => {
+        wx.hideLoading();
+        if (res.code === 200 && res.data && res.data.length > 0) {
+          // 获取第一份简历
+          const firstResume = res.data[0];
+          this.setData({
+            resumeId: firstResume.id
+          });
+          // 加载简历详情
+          this.loadResumeDetail(firstResume.id);
+        } else {
+          // 没有简历，使用登录信息作为默认值
+          this.loadDefaultUserInfo();
+        }
+      })
+      .catch(err => {
+        wx.hideLoading();
+        console.error('加载简历列表失败:', err);
+        this.loadDefaultUserInfo();
+      });
+  },
+
+  /**
+   * 加载简历详情
+   */
+  loadResumeDetail(resumeId) {
+    wx.showLoading({ title: '加载中...' });
+
+    api.getResumeDetail(resumeId)
       .then(res => {
         wx.hideLoading();
         if (res.code === 200 && res.data) {
@@ -75,33 +106,29 @@ Page({
           });
         } else {
           // 如果后端没有数据，使用登录信息作为默认值
-          const app = getApp();
-          const loginUserInfo = app.getUserInfo();
-          if (loginUserInfo) {
-            this.setData({
-              form: {
-                ...this.data.form,
-                name: loginUserInfo.nickname || ''
-              }
-            });
-          }
+          this.loadDefaultUserInfo();
         }
       })
       .catch(err => {
         wx.hideLoading();
-        console.error('加载失败:', err);
-        // 失败时也尝试使用登录信息
-        const app = getApp();
-        const loginUserInfo = app.getUserInfo();
-        if (loginUserInfo) {
-          this.setData({
-            form: {
-              ...this.data.form,
-              name: loginUserInfo.nickname || ''
-            }
-          });
+        console.error('加载简历详情失败:', err);
+        this.loadDefaultUserInfo();
+      });
+  },
+
+  /**
+   * 加载默认用户信息
+   */
+  loadDefaultUserInfo() {
+    const loginUserInfo = app.getUserInfo();
+    if (loginUserInfo) {
+      this.setData({
+        form: {
+          ...this.data.form,
+          name: loginUserInfo.nickname || ''
         }
       });
+    }
   },
 
   /**

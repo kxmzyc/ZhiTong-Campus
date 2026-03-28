@@ -2,7 +2,10 @@
 <view class="container">
   <!-- Header -->
   <view class="header">
-    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">用户</view>
+    <view class="user-avatar ui-pressable" hover-class="ui-press" bindtap="goToProfile">
+      <image wx:if="{{avatarUrl}}" class="avatar-img" src="{{avatarUrl}}" mode="aspectFill" />
+      <text wx:else class="avatar-text">用户</text>
+    </view>
     <view class="nav-container">
       <view class="nav-links">
         <view class="nav-link active">小助手</view>

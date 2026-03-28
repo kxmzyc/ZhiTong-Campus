@@ -1,5 +1,6 @@
 // pages/campus/campus.js
 const api = require('../../utils/api');
+const app = getApp();
 
 /**
  * 静态数据源 - 四大互联网公司
@@ -58,6 +59,7 @@ Page({
    * 页面的初始数据
    */
   data: {
+    avatarUrl: '',
     activeSubTab: 0,
     subTabs: ['热招岗位', '校招简章', '网申简章'],
     jobCountSuffix: '个热招岗位',
@@ -81,6 +83,18 @@ Page({
       2: []
     },
     companies: []
+  },
+
+  /**
+   * 加载用户头像
+   */
+  loadUserAvatar() {
+    const userInfo = app.getUserInfo();
+    if (userInfo && userInfo.avatar) {
+      this.setData({
+        avatarUrl: userInfo.avatar
+      });
+    }
   },
 
   goToHome() {
@@ -175,6 +189,7 @@ Page({
    */
   onLoad(options) {
     console.log('=== campus onLoad ===');
+    this.loadUserAvatar();
     this.syncSelectedCities();
     this.syncSelectedIndustries();
     this.syncSelectedPositions();
@@ -188,6 +203,7 @@ Page({
    */
   onShow() {
     console.log('=== campus onShow ===');
+    this.loadUserAvatar();
     this.syncSelectedCities();
     this.syncSelectedIndustries();
     this.syncSelectedPositions();

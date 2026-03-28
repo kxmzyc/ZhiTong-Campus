@@ -32,7 +32,6 @@
         <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="goApplied">
           <view class="row-left">投递过</view>
           <view class="row-right">
-            <text class="row-count">0</text>
             <text class="row-arrow">›</text>
           </view>
         </view>
@@ -40,7 +39,6 @@
         <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="goPending">
           <view class="row-left">待网申</view>
           <view class="row-right">
-            <text class="row-count">0</text>
             <text class="row-arrow">›</text>
           </view>
         </view>
@@ -48,7 +46,6 @@
         <view class="row ui-pressable" hover-class="ui-press-soft" bindtap="goFavorite">
           <view class="row-left">已收藏</view>
           <view class="row-right">
-            <text class="row-count">0</text>
             <text class="row-arrow">›</text>
           </view>
         </view>

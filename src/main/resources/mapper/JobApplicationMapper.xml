@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.zhitongxiaoyuan.mapper.JobApplicationMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="JobApplicationVOMap" type="com.example.zhitongxiaoyuan.vo.JobApplicationVO">
+        <id column="id" property="id"/>
+        <result column="job_id" property="jobId"/>
+        <result column="job_title" property="jobTitle"/>
+        <result column="salary_min" property="salaryMin"/>
+        <result column="salary_max" property="salaryMax"/>
+        <result column="company_name" property="companyName"/>
+        <result column="company_logo" property="companyLogo"/>
+        <result column="status" property="status"/>
+        <result column="applied_at" property="appliedAt"/>
+        <result column="city" property="city"/>
+        <result column="company_id" property="companyId"/>
+    </resultMap>
+
+    <!-- 查询用户的申请列表（关联职位和公司信息） -->
+    <select id="selectApplicationListWithDetails" resultMap="JobApplicationVOMap">
+        SELECT
+            ja.id,
+            ja.job_id,
+            j.title AS job_title,
+            j.salary_min,
+            j.salary_max,
+            j.city,
+            c.id AS company_id,
+            c.name AS company_name,
+            c.logo AS company_logo,
+            ja.status,
+            ja.applied_at
+        FROM
+            job_application ja
+        LEFT JOIN
+            job j ON ja.job_id = j.id
+        LEFT JOIN
+            company c ON j.company_id = c.id
+        WHERE
+            ja.user_id = #{userId}
+            AND ja.deleted = 0
+        ORDER BY
+            ja.applied_at DESC
+    </select>
+
+</mapper>

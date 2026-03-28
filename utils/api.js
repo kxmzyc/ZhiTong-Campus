@@ -242,6 +242,13 @@ function updateUser(data) {
 }
 
 /**
+ * 获取用户统计数据
+ */
+function getUserStats(userId) {
+  return get(`/user/stats?userId=${userId}`);
+}
+
+/**
  * 获取用户积分余额
  */
 function getPointsBalance(userId) {
@@ -272,10 +279,10 @@ function applyJob(userId, jobId, resumeId) {
 }
 
 /**
- * 获取申请列表
+ * 获取申请列表（包含职位和公司详细信息）
  */
 function getApplicationList(userId) {
-  return get(`/application/list/${userId}`);
+  return get(`/application/list?userId=${userId}`);
 }
 
 /**
@@ -403,6 +410,7 @@ module.exports = {
   getUserByOpenid,
   userLogin,
   updateUser,
+  getUserStats,
   getPointsBalance,
   addPoints,
   deductPoints,

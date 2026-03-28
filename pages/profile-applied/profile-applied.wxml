@@ -11,8 +11,49 @@
   </view>
 
   <view class="content">
-    <view class="empty">
-      <view class="empty-title">暂无数据</view>
+    <!-- 加载中 -->
+    <view class="loading" wx:if="{{loading}}">
+      <text>加载中...</text>
+    </view>
+
+    <!-- 列表 -->
+    <view class="list" wx:if="{{!loading && applications.length > 0}}">
+      <view class="item" wx:for="{{applications}}" wx:key="id">
+        <view class="item-main" bindtap="goToJobDetail" data-jobid="{{item.jobId}}">
+          <!-- 职位信息 -->
+          <view class="item-header">
+            <view class="job-title">{{item.jobTitle}}</view>
+            <view class="job-salary">{{item.salary}}</view>
+          </view>
+
+          <!-- 公司信息 -->
+          <view class="item-company" catchtap="goToCompanyDetail" data-companyid="{{item.companyId}}">
+            <image class="company-logo" src="{{item.companyLogo}}" mode="aspectFill"></image>
+            <view class="company-info">
+              <view class="company-name">{{item.companyName}}</view>
+              <view class="company-location">{{item.city}}</view>
+            </view>
+          </view>
+
+          <!-- 底部信息 -->
+          <view class="item-footer">
+            <view class="apply-time">投递时间：{{item.appliedAt}}</view>
+            <view class="status status-{{item.status}}">{{item.statusText}}</view>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="item-actions" wx:if="{{item.status === 'pending'}}">
+          <button class="btn-cancel" bindtap="onCancelApplication" data-id="{{item.id}}">撤销投递</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty" wx:if="{{!loading && applications.length === 0}}">
+      <image class="empty-icon" src="/images/empty.png" mode="aspectFit"></image>
+      <view class="empty-title">暂无投递记录</view>
+      <view class="empty-desc">快去投递心仪的职位吧</view>
     </view>
   </view>
 </view>

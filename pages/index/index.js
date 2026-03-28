@@ -1,10 +1,13 @@
 // pages/index/index.js
+const app = getApp();
+
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
+    avatarUrl: '',
     pointsBalance: 0,
     deepThinkingEnabled: false,
     historyOpen: false,
@@ -34,6 +37,18 @@ Page({
   },
 
   noop() {},
+
+  /**
+   * 加载用户头像
+   */
+  loadUserAvatar() {
+    const userInfo = app.getUserInfo();
+    if (userInfo && userInfo.avatar) {
+      this.setData({
+        avatarUrl: userInfo.avatar
+      });
+    }
+  },
 
   loadPointsBalance() {
     const stored = wx.getStorageSync('points_balance');
@@ -351,6 +366,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+    this.loadUserAvatar();
     this.loadPointsBalance();
     this.loadDeepThinkingSetting();
     this.ensureHistoryInitialized();
@@ -368,6 +384,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
+    this.loadUserAvatar();
     this.loadPointsBalance();
     this.loadDeepThinkingSetting();
   },

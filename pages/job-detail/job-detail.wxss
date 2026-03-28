@@ -206,3 +206,15 @@
 .btn-apply::after {
   border: none;
 }
+
+/* 已投递按钮样式 */
+.btn-applied {
+  background: #e0e0e0 !important;
+  color: #999 !important;
+}
+
+button[disabled].btn-applied {
+  background: #e0e0e0 !important;
+  color: #999 !important;
+  opacity: 1;
+}

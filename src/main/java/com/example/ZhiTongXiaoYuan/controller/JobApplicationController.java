@@ -3,6 +3,7 @@ package com.example.zhitongxiaoyuan.controller;
 import com.example.zhitongxiaoyuan.common.Result;
 import com.example.zhitongxiaoyuan.entity.JobApplication;
 import com.example.zhitongxiaoyuan.service.JobApplicationService;
+import com.example.zhitongxiaoyuan.vo.JobApplicationVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,7 +39,16 @@ public class JobApplicationController {
     }
 
     /**
-     * 获取用户的申请列表
+     * 获取用户的申请列表（包含职位和公司详细信息）
+     */
+    @GetMapping("/list")
+    public Result<List<JobApplicationVO>> getApplicationList(@RequestParam Long userId) {
+        List<JobApplicationVO> applications = applicationService.getApplicationListWithDetails(userId);
+        return Result.success(applications);
+    }
+
+    /**
+     * 获取用户的申请列表（原始数据）
      */
     @GetMapping("/list/{userId}")
     public Result<List<JobApplication>> getApplicationsByUserId(@PathVariable Long userId) {
@@ -78,11 +88,9 @@ public class JobApplicationController {
      * 检查是否已申请
      */
     @GetMapping("/check")
-    public Result<Map<String, Boolean>> checkApplied(@RequestParam Long userId, @RequestParam Long jobId) {
+    public Result<Boolean> checkApplied(@RequestParam Long userId, @RequestParam Long jobId) {
         boolean hasApplied = applicationService.hasApplied(userId, jobId);
-        Map<String, Boolean> result = new HashMap<>();
-        result.put("hasApplied", hasApplied);
-        return Result.success(result);
+        return Result.success(hasApplied);
     }
 
     /**
