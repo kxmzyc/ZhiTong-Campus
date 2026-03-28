@@ -1,5 +1,7 @@
-// API 配置
-const API_BASE_URL = 'http://localhost:8080/api';
+// 云托管环境配置
+const ENV_ID = 'prod-8g1wu4fze02dd0a5';
+const SERVICE_NAME = 'springboot-g2yz';
+const API_PREFIX = '/api';
 
 /**
  * 将对象转换为 URL 查询字符串
@@ -16,25 +18,27 @@ function buildQueryString(params) {
 }
 
 /**
- * 发送 HTTP 请求
+ * 发送 HTTP 请求（使用微信云托管 callContainer，无需配置域名白名单）
  */
 function request(url, options = {}) {
   return new Promise((resolve, reject) => {
-    // 对于 GET 请求，将参数拼接到 URL 上
-    let requestUrl = `${API_BASE_URL}${url}`;
+    let path = `${API_PREFIX}${url}`;
     let requestData = options.data || {};
 
+    // GET 请求将参数拼接到路径上
     if (options.method === 'GET' && requestData && Object.keys(requestData).length > 0) {
-      requestUrl += buildQueryString(requestData);
-      requestData = {}; // GET 请求不需要 body
+      path += buildQueryString(requestData);
+      requestData = {};
     }
 
-    wx.request({
-      url: requestUrl,
+    wx.cloud.callContainer({
+      config: { env: ENV_ID },
+      path: path,
       method: options.method || 'GET',
       data: requestData,
       header: {
         'content-type': 'application/json',
+        'X-WX-SERVICE': SERVICE_NAME,
         ...options.header
       },
       success: (res) => {

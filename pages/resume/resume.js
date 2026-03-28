@@ -9,7 +9,7 @@ Page({
    */
   data: {
     avatarUrl: '',
-    userId: 1, // 临时使用固定用户ID，后续需要从登录信息获取
+    userId: null, // 从登录信息动态获取
     resumes: [],
     displayResumes: [],
     canCreateMore: true, // 默认允许创建
@@ -411,6 +411,8 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
+    const userId = app.getUserId();
+    this.setData({ userId });
     this.loadUserAvatar();
     this.loadResumes();
   },

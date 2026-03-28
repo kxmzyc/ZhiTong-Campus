@@ -7,13 +7,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/zhitongxiaoyuan?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://10.14.105.206:3306/zhitongxiaoyuan?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
-    password: 041029
-
-  # 激活的配置文件
-  profiles:
-    active: local
+    password: VvP4qwsF
 
 # MyBatis-Plus 配置
 mybatis-plus:
@@ -35,7 +31,7 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
 
-# 微信小程序配置（使用环境变量）
+# 微信小程序配置（优先读取环境变量，回退到默认值）
 wechat:
-  appid: ${WECHAT_APPID}
-  secret: ${WECHAT_SECRET}
+  appid: ${WECHAT_APPID:wxe7ce01e026888fc3}
+  secret: ${WECHAT_SECRET:d79eccb76020867b774ed31c217ad378}

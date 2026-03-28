@@ -1,5 +1,10 @@
 App({
   onLaunch() {
+    // 初始化微信云托管环境
+    wx.cloud.init({
+      env: 'prod-8g1wu4fze02dd0a5',
+      traceUser: false
+    });
     // 小程序启动时初始化
     this.initApp();
   },

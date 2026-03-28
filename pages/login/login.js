@@ -103,14 +103,16 @@ Page({
    * 调用后端登录接口
    */
   loginToBackend(code) {
-    wx.request({
-      url: 'http://localhost:8080/api/user/login',
+    wx.cloud.callContainer({
+      config: { env: 'prod-8g1wu4fze02dd0a5' },
+      path: '/api/user/login',
       method: 'POST',
       data: {
         code: code,
         nickname: this.data.nickName.trim(),
         avatar: this.data.avatarUrl
       },
+      header: { 'X-WX-SERVICE': 'springboot-g2yz', 'content-type': 'application/json' },
       success: (res) => {
         console.log('后端登录响应:', res.data);
 
