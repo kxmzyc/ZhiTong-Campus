@@ -115,7 +115,7 @@ Page({
   loadResumes() {
     // 从后端加载简历列表（后端主导模式）
     if (this.data.loading) return;
-
+    console.log('[简历页] loadResumes userId:', this.data.userId);
     this.setData({ loading: true });
     wx.showLoading({ title: '加载中...' });
 
@@ -412,6 +412,7 @@ Page({
    */
   onLoad(options) {
     const userId = app.getUserId();
+    console.log('[简历页] onLoad userId:', userId);
     this.setData({ userId });
     this.loadUserAvatar();
     this.loadResumes();
